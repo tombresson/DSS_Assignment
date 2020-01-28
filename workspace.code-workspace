@@ -3,5 +3,11 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"cmake.sourceDirectory": "${workspaceFolder}/src",
+		"files.associations": {
+			"curl.h": "c"
+		}
+	}
 }

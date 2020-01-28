@@ -1,0 +1,5 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.sourceDirectory": "${workspaceFolder}/src",
+    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools"
+}
