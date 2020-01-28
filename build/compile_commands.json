@@ -1,7 +1,0 @@
-[
-{
-  "directory": "E:/Documents/GitHub/DSS_Assignment/build",
-  "command": "C:\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gcc.exe  @CMakeFiles/main.dir/includes_C.rsp -g   -o CMakeFiles\\main.dir\\main.c.obj   -c E:\\Documents\\GitHub\\DSS_Assignment\\src\\main.c",
-  "file": "E:/Documents/GitHub/DSS_Assignment/src/main.c"
-}
-]
