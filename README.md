@@ -2,5 +2,7 @@
 
 ## Building
 
-* Install [MinGW](http://mingw-w64.org/doku.php/download/mingw-builds)
-* Install [CMake](https://cmake.org/download/)
+* Install VisualStudio 2019
+* Clone [vcpkg from GitHub](https://github.com/Microsoft/vcpkg)
+* Install libcurl with vcpkg `vcpkg install curl:x64-windows`
+*
