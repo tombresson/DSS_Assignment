@@ -44,8 +44,9 @@
 
 typedef enum
 {
-    APP_NO_ERROR = 0,
-    APP_JSON_DATA_UNABLE_TO_BE_RETRIVED,
+    APPERR_NO_ERROR = 0,
+    APPERR_JSON_DATA_UNABLE_TO_BE_RETRIVED,
+    APPERR_UNABLE_TO_ALLOCATE_MEMORY
 }appErrors_t;
 
 /* ****************************   Structures   **************************** */
