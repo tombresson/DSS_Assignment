@@ -7,7 +7,10 @@
 	"settings": {
 		"cmake.sourceDirectory": "${workspaceFolder}/src",
 		"files.associations": {
-			"curl.h": "c"
+			"curl.h": "c",
+			"json_deserializer.h": "c",
+			"json_serialize_deserialize_types.h": "c",
+			"errors.h": "c"
 		}
 	}
 }
