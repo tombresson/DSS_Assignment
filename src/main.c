@@ -61,9 +61,10 @@ void main(void)
 {
     printf("DSS App Started!");
 
-    jsonDataBuffer_t buff_data;
-    memset(&buff_data, 0, sizeof(jsonDataBuffer_t));
-    curlLibGetData(&buff_data, "http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
+    httpDataBuffer_t json_data;
+    curlLibBufferInit(&json_data);
+    curlLibGetData(&json_data, "http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
+    curlLibFreeData(&json_data);
 }
 
 /* *************************   Private Functions   ************************ */

@@ -62,6 +62,7 @@ typedef struct
 
 /* ***********************   Function Prototypes   ************************ */
 
+void getGameDataAtIdx(gameData_t *p_data, const int idx);
 void gameDataGetNext(gameData_t *p_data);
 
 /** @} */

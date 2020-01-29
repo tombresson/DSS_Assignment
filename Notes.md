@@ -12,6 +12,7 @@
   * Fetch thread gives semaphore to release the graphics thread
   * Graphics thread reads a status and either proceeds to gather the data to display or displays appropriate error message
 * Search tokenized JSON for the `games` array, then parse the objects inside
+* Caller of the games data parser module will get back a linked-list of data which they own
 
 ## ToDos
 

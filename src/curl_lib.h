@@ -45,14 +45,17 @@
 typedef struct
 {
     size_t size;
+    size_t content_length;
     char *p_buffer;
     char *p_pos;
-} jsonDataBuffer_t;
+} httpDataBuffer_t;
 
 /* ***********************   Function Prototypes   ************************ */
 
 void curlLibInit(void);
-appErrors_t curlLibGetData(jsonDataBuffer_t *const p_buffer, const char *const json_url);
+void curlLibBufferInit(httpDataBuffer_t *const p_buff);
+appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const json_url);
+void curlLibFreeData(const httpDataBuffer_t *const p_buffer);
 
 /** @} */
 
