@@ -14,11 +14,27 @@
 //  * non-quoted primitive values other than true/false/null/numbers
 //  * Only primitive values without a root object
 //
-//  Copyright Fortune Brands Home & Security, 2018
-//  All Rights Reserved.  This is a confidential intellectual property work
-//  of Fortune Brands Home & Security and is not to be copied or transmitted to
-//  other parties without the express written permission of Fortune Brands
-//  Home & Security.
+// The MIT License (MIT)
+//
+// Copyright (c) 2020, Thomas Bresson
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -33,10 +49,7 @@
 
 // Project Includes
 #include "enum_label.h"
-#include "jsmn.h"
-#include "log.h"
-#include "utility.h"
-#include "wlan_app.h"
+#include "jsmn/jsmn.h"
 
 // Module Includes
 #include "json_deserializer.h"
@@ -88,20 +101,11 @@ static void jsonDeserializeEnum(const char *const p_token_str, const int token_l
 
 /* ***********************   File Scope Variables   *********************** */
 
-static const LogEventDefn_t log_msg_defs[] =
-{
-    {LOG_EVENT_JSONDESER_BAD_DOC,        LOG_SEVERITY_WARN,     "JSON document parsed was potentially malformed or was not an object."},
-    {LOG_EVENT_LOG_ERROR_UNKNOWN,        LOG_SEVERITY_ERROR,    NULL}
-};
-
 /* *************************   Public  Functions   ************************ */
 
 // Initialize the JSON Deserialzer Module
 void jsonDeserializeInit(void)
 {
-    // Register log object list
-    logRegisterEventDefnTable(log_msg_defs);
-
     // Don't call more than once!
     static bool initialized = false;
     assert(!initialized);
@@ -184,8 +188,7 @@ int jsonDeserialize(const jsmntok_t *const p_jsmn_tok, const int num_tokens,
     }
     else
     {
-        // JSON document passed in was not an object (still could be valid JSON)
-        logLog(LOG_EVENT_JSONDESER_BAD_DOC);
+        // TODO: Log a failure
     }
 
     return (num_key_values_found);
