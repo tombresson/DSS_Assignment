@@ -42,16 +42,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 #include <assert.h>
 
 // Libs
 #include "jsmn/jsmn.h"
 
-// Module
-#include "errors.h"
+// App
 #include "curl_lib.h"
+#include "errors.h"
 #include "json_deserializer.h"
+#include "utility.h"
+
+// Module
 #include "game_data_parser.h"
 
 /* ***************************   Definitions   **************************** */
@@ -79,12 +83,72 @@ typedef struct
 
 static bool gameDataTokenizeJson(jsmnTokenizationData_t *const p_token_data, const char *const p_json_buff,
                                  const size_t json_content_length);
-static int gameDataFindNamedArray(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff,
-                                  const char *const key_of_array_str);
+static int gameDataFindArray(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff,
+                             const char *const key_of_array_str);
 static void gameDataDeserializeGames(const int game_array_idx, const jsmnTokenizationData_t *const p_token_data,
                                      const char *const p_json_buff, const size_t json_content_length);
 
 /* ***********************   File Scope Variables   *********************** */
+
+// Stuct in which the game json data will be parsed into
+typedef struct
+{
+    jsonStr_t game_date;
+    jsonStr_t home_team_name;
+    jsonStr_t away_team_name;
+    jsonStr_t detailed_state;
+    uint32_t home_score;
+    uint32_t away_score;
+    jsonStr_t img_url;
+} gameDataObj_t;
+
+// ******* BEGIN JSON parsing structures *******
+
+static const jsonKeyValue_t g_root_obj_data[] =
+    {
+        {
+            .key_str = "gameDate",
+            .c_type = E_JSON_C_STR_PTR,
+            .struct_member_offset = offsetof(gameDataObj_t, game_date),
+            .struct_member_size = MEMBER_SIZE(gameDataObj_t, game_date),
+            .value_tok_type = JSMN_STRING,
+        }};
+
+// Game Object root Keylist definition
+static const jsonKeyValueList_t g_root_key_list =
+    {
+        .p_keys = g_root_obj_data,
+        .size = ARRAY_SIZE(g_root_obj_data)};
+
+static const jsonKeyValue_t g_home_team_name_obj_data[] =
+    {
+        {
+            .key_str = "gameDate",
+            .c_type = E_JSON_C_STR_PTR,
+            .struct_member_offset = offsetof(gameDataObj_t, game_date),
+            .struct_member_size = MEMBER_SIZE(gameDataObj_t, game_date),
+            .value_tok_type = JSMN_STRING,
+        }};
+
+static const jsonKeyValueList_t g_root_key_list =
+    {
+        .p_keys = g_root_obj_data,
+        .size = ARRAY_SIZE(g_root_obj_data)};
+
+// Root object used a game object
+static jsonContainer_t g_root_obj =
+    {
+        .type = E_JSON_OBJECT,
+        .children = NULL,
+        .num_children = 0, // TODO: This will be 3
+        .key_str = NULL,
+        .p_key_list = &g_root_key_list,
+        .p_deserialized_elements = NULL, // Don't need to know which were deserialized
+        .p_elements_to_serialize = NULL, // Serialize all of the data
+        .p_data = NULL                   // TODO: Add pointer to game object struct
+};
+
+// ******* END JSON parsing structures *******
 
 /* ****************************   BEGIN CODE   **************************** */
 
@@ -114,7 +178,7 @@ void gameDataParserGatherData(const char *const p_json_url)
             // Seek to the "dates.games" array by searching the tokens
             // NOTE: The reason this needs to be done is because the JSON deserialization only
             // NOTE: operates deserializes json with objects as it's root.
-            int idx_of_game_data = gameDataFindNamedArray(&token_data, &json_data_buff, "games");
+            int idx_of_game_data = gameDataFindArray(&token_data, &json_data_buff, "games");
 
             // Progressively tokenize each object inside the array (making them appear as "root objects"), deserialize them and build the list
             gameDataDeserializeGames(idx_of_game_data, &token_data, json_data_buff.p_buffer, json_data_buff.content_length);
@@ -204,14 +268,17 @@ static void gameDataFreeTokenData(jsmnTokenizationData_t *const p_token_data)
 }
 
 // NOTE: This could enforce that "games" is a child of "dates", since "dates" is the child of the parent object
-// NOTE: but for now this lazy approach should work.
+// NOTE: but for now this lazy approach should work (barring no second "games" array shows up in the data).
 //
 // NOTE: This could be turned into a generic function that could find any array/object given a key and
-// NOTE: possibly a path
+// NOTE: possibly a path. (i.e. given the string "dates.games", it could seek to the element with that key
+// NOTE: and return the type (array, object, string or primitive) and the token index). It could potentially
+// NOTE: even take an expected type to ensure the caller gets exactly what is expected, instead of having
+// NOTE: to re-query.
 // Searches the token list for the named array.
 // Returns an index of the token in the list for the corresponding array
-static int gameDataFindNamedArray(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff,
-                                  const char *const key_of_array_str)
+static int gameDataFindArray(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff,
+                             const char *const key_of_array_str)
 {
     bool at_buffer_end = false;
     bool matching_token_found = false;
@@ -238,6 +305,8 @@ static int gameDataFindNamedArray(const jsmnTokenizationData_t *const p_tok_data
             token_idx++;
         }
     }
+
+    // TODO: with a matching token, it's worthwhile to return the size of the array (size attrib in the token data)
 
     return (matching_token_found ? token_idx : -1);
 }
@@ -270,3 +339,89 @@ static void gameDataDeserializeGames(const int game_array_idx, const jsmnTokeniz
 static void gameDataDeserializeGame(void)
 {
 }
+
+// TODO: Move JSON related items out of here
+
+// Searches for an expected object (based on a dot notation of the reference) in the json
+// data and returns a JSMN token index of that data
+// NOTE: There is no support of wildcards ('*' or '?') in the search
+static int jsonSearchForElement(const jsmnTokenizationData_t *const p_tok_data, const char *const json_ref, const jsmntok_t type)
+{
+    // Check for malformed reference
+    assert((*json_ref != '\0') && (*json_ref != '.'));
+
+    int current_char_idx = 0;
+    int last_element_start = 0;
+    while (json_ref[current_char_idx] != '\0')
+    {
+        // Look to see if current character is a '.'
+        if (json_ref[current_char_idx] != '.')
+        {
+            // Found the end of the current reference
+
+            // Form a string, and search for a token with the required parent
+        }
+        else
+        {
+            // Assume is part of the next reference and keep going
+        }
+        current_char_idx++;
+    }
+}
+
+static int jsonFindElement(const jsmnTokenizationData_t *const p_tok_data, const char *const key_str, const jsmntok_t type, const int parent_idx)
+{
+    int idx = 0;
+    bool key_found = false;
+    while (idx < p_tok_data->num_tokens && !key_found)
+    {
+        // Parent object matches and the data is a string
+        if (p_tok_data->p_tokens[idx].parent == parent_idx &&
+            p_tok_data->p_tokens[idx].type == JSMN_STRING)
+        {
+            // Check to see if key string matches to the JSON string data
+
+            // If true, check to see the next token type matches the required type, if so, object is
+            // otherwise keep going
+        }
+
+        ++idx;
+    }
+
+    // If idx is the number of elements, element wasn't found in the list.
+    ASSERT(idx != num_of_settings);
+}
+
+// static int jsonFindElement(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff,
+//                                   const char *const key_of_array_str)
+// {
+//     bool at_buffer_end = false;
+//     bool matching_token_found = false;
+
+//     // This will be the index where the game data is found
+//     int token_idx = 0;
+//     while ((token_idx < p_tok_data->num_tokens) && !matching_token_found)
+//     {
+//         // The token must be at least beyond the first token, otherwise it can't be a named array
+//         if (p_tok_data->p_tokens[token_idx].type == JSMN_ARRAY && token_idx > 0)
+//         {
+//             // Check the key token, which is the token before the current, to see if the string matches
+//             const jsmntok_t *const p_tok = &p_tok_data->p_tokens[token_idx - 1];
+//             // Catch access that will be out of bounds; This should never happen
+//             assert(p_buff->content_length > (p_tok->start + p_tok->size));
+
+//             const char *const key_str = p_buff->p_buffer + p_tok->start;
+//             matching_token_found = (p_tok->type == JSMN_STRING) &&
+//                                    (strncmp(key_str, key_of_array_str, p_tok->size) == 0);
+//         }
+
+//         if (!matching_token_found)
+//         {
+//             token_idx++;
+//         }
+//     }
+
+//     // TODO: with a matching token, it's worthwhile to return the size of the array (size attrib in the token data)
+
+//     return (matching_token_found ? token_idx : -1);
+// }
