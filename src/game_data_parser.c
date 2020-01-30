@@ -77,12 +77,14 @@ typedef struct
 
 /* ***********************   Function Prototypes   ************************ */
 
-static bool gameDataTokenizeJson(const httpDataBuffer_t *const p_buff, jsmnTokenizationData_t *const p_token_data);
+static bool gameDataTokenizeJson(jsmnTokenizationData_t *const p_token_data, const char *const p_json_buff,
+                                 const size_t json_content_length);
+static int gameDataFindNamedArray(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff,
+                                  const char *const key_of_array_str);
+static void gameDataDeserializeGames(const int game_array_idx, const jsmnTokenizationData_t *const p_token_data,
+                                     const char *const p_json_buff, const size_t json_content_length);
 
 /* ***********************   File Scope Variables   *********************** */
-
-
-
 
 /* ****************************   BEGIN CODE   **************************** */
 
@@ -101,13 +103,13 @@ void gameDataParserGatherData(const char *const p_json_url)
     curlLibBufferInit(&json_data_buff);
     appErrors_t error_status = curlLibGetData(&json_data_buff, p_json_url);
 
-    if(error_status == APPERR_OK)
+    if (error_status == APPERR_OK)
     {
         // Tokenize the JSON data
         jsmnTokenizationData_t token_data;
-        bool result = gameDataTokenizeJson(&json_data_buff, &token_data);
+        bool result = gameDataTokenizeJson(&token_data, json_data_buff.p_buffer, json_data_buff.content_length);
 
-        if(result)
+        if (result)
         {
             // Seek to the "dates.games" array by searching the tokens
             // NOTE: The reason this needs to be done is because the JSON deserialization only
@@ -115,6 +117,7 @@ void gameDataParserGatherData(const char *const p_json_url)
             int idx_of_game_data = gameDataFindNamedArray(&token_data, &json_data_buff, "games");
 
             // Progressively tokenize each object inside the array (making them appear as "root objects"), deserialize them and build the list
+            gameDataDeserializeGames(idx_of_game_data, &token_data, json_data_buff.p_buffer, json_data_buff.content_length);
             // This is the easiest approach without modifying the way the deserialization code works
         }
     }
@@ -136,18 +139,17 @@ void gameDataParserGatherData(const char *const p_json_url)
     curlLibFreeData(&json_data_buff);
 }
 
-
 void gameDataParserFreeGameList(gameDataNode_t *p_list)
 {
-
+    // Traverse through the linked list freeing each bit that was malloc'd
 }
-
 
 /* *************************   Private Functions   ************************ */
 
 // Utilizes JSMN JSON tokenizer to tokenize the json data
-static bool gameDataTokenizeJson(const httpDataBuffer_t *const p_buff,
-                                 jsmnTokenizationData_t *const p_token_data)
+static bool gameDataTokenizeJson(jsmnTokenizationData_t *const p_token_data,
+                                 const char *const p_json_buff,
+                                 const size_t json_content_length)
 {
     // Init parser and token data struct
     jsmn_parser parser;
@@ -165,17 +167,17 @@ static bool gameDataTokenizeJson(const httpDataBuffer_t *const p_buff,
         do
         {
             jsmn_init(&parser);
-            jsmn_result = jsmn_parse(&parser, p_buff->p_buffer, p_buff->content_length, p_token_data->p_tokens, p_token_data->num_tokens);
+            jsmn_result = jsmn_parse(&parser, p_json_buff, json_content_length, p_token_data->p_tokens, p_token_data->num_tokens);
             if (jsmn_result == JSMN_ERROR_NOMEM)
             {
                 // Double the number of tokens and try again to tokenize
-                p_token_data->num_tokens  *= 2;
+                p_token_data->num_tokens *= 2;
                 free(p_token_data->p_tokens);
-                p_token_data->p_tokens = calloc(p_token_data->num_tokens , sizeof(jsmntok_t));
+                p_token_data->p_tokens = calloc(p_token_data->num_tokens, sizeof(jsmntok_t));
                 //tokenization_failed = (realloc(p_tokens, num_tokens * sizeof(jsmntok_t))) == NULL;
                 tokenization_failed = (p_token_data->p_tokens == NULL);
             }
-            else if(jsmn_result < 0)
+            else if (jsmn_result < 0)
             {
                 // All other JSMN errors are unrecoverable at this point and cause the tokenization to fail
                 tokenization_failed = true;
@@ -208,20 +210,21 @@ static void gameDataFreeTokenData(jsmnTokenizationData_t *const p_token_data)
 // NOTE: possibly a path
 // Searches the token list for the named array.
 // Returns an index of the token in the list for the corresponding array
-static int gameDataFindNamedArray(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff, const char *const key_of_array_str)
+static int gameDataFindNamedArray(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff,
+                                  const char *const key_of_array_str)
 {
     bool at_buffer_end = false;
     bool matching_token_found = false;
 
     // This will be the index where the game data is found
-    int idx;
-    for (idx = 0; ((idx < p_tok_data->num_tokens) && !matching_token_found); idx++)
+    int token_idx = 0;
+    while ((token_idx < p_tok_data->num_tokens) && !matching_token_found)
     {
         // The token must be at least beyond the first token, otherwise it can't be a named array
-        if (p_tok_data->p_tokens[idx].type == JSMN_ARRAY && idx > 0)
+        if (p_tok_data->p_tokens[token_idx].type == JSMN_ARRAY && token_idx > 0)
         {
             // Check the key token, which is the token before the current, to see if the string matches
-            const jsmntok_t *const p_tok = &p_tok_data->p_tokens[idx - 1];
+            const jsmntok_t *const p_tok = &p_tok_data->p_tokens[token_idx - 1];
             // Catch access that will be out of bounds; This should never happen
             assert(p_buff->content_length > (p_tok->start + p_tok->size));
 
@@ -229,9 +232,38 @@ static int gameDataFindNamedArray(const jsmnTokenizationData_t *const p_tok_data
             matching_token_found = (p_tok->type == JSMN_STRING) &&
                                    (strncmp(key_str, key_of_array_str, p_tok->size) == 0);
         }
+
+        if (!matching_token_found)
+        {
+            token_idx++;
+        }
     }
 
-    return (matching_token_found ? idx : -1);
+    return (matching_token_found ? token_idx : -1);
+}
+
+static void gameDataDeserializeGames(const int game_array_idx, const jsmnTokenizationData_t *const p_token_data,
+                                     const char *const p_json_buff, const size_t json_content_length)
+{
+    // Check the next token, it should be an object token with a parent idx equal to game_array_idx
+    int next_game_tok_idx = (game_array_idx + 1);
+    if ((next_game_tok_idx < p_token_data->num_tokens) &&
+        (p_token_data->p_tokens[next_game_tok_idx].parent == game_array_idx))
+    {
+        jsmntok_t *p_game_obj_tok = &p_token_data->p_tokens[next_game_tok_idx];
+
+        // If this is true, tokenize this object, create a new buffer that points to the object start
+        // then pass it off to be deserialized
+        jsmnTokenizationData_t game_obj_token_data;
+        const char *const obj_start_char = (p_json_buff + p_game_obj_tok->start);
+        const int obj_len = p_game_obj_tok->end - p_game_obj_tok->start;
+        bool result = gameDataTokenizeJson(&game_obj_token_data, obj_start_char, obj_len);
+
+        // TODO: Deserialize the game data
+
+        // Free the JSON tokens after deserialization is finished
+        gameDataFreeTokenData(&game_obj_token_data);
+    }
 }
 
 // Expects to be passed a token belonging to the beginning of the object inside the named "game" array

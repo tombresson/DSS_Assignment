@@ -61,6 +61,7 @@ enum jsmnerr {
  * type		type (object, array, string etc.)
  * start	start position in JSON data string
  * end		end position in JSON data string
+ * size     Number of child (nested) tokens 
  */
 typedef struct {
     jsmntype_t type;
