@@ -54,7 +54,7 @@ typedef struct
 
 void curlLibInit(void);
 void curlLibBufferInit(httpDataBuffer_t *const p_buff);
-appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const json_url);
+appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const url);
 void curlLibFreeData(const httpDataBuffer_t *const p_buffer);
 
 /** @} */

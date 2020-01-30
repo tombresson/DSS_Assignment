@@ -20,10 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\curl_lib.c" />
+    <ClCompile Include="src\game_data_parser.c" />
+    <ClCompile Include="src\jsmn\jsmn.c" />
     <ClCompile Include="src\main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\curl_lib.h" />
+    <ClInclude Include="src\game_data_parser.h" />
     <ClInclude Include="src\inc\curl\curl.h" />
     <ClInclude Include="src\inc\curl\curlver.h" />
     <ClInclude Include="src\inc\curl\easy.h" />
@@ -33,6 +36,7 @@
     <ClInclude Include="src\inc\curl\system.h" />
     <ClInclude Include="src\inc\curl\typecheck-gcc.h" />
     <ClInclude Include="src\inc\curl\urlapi.h" />
+    <ClInclude Include="src\jsmn\jsmn.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

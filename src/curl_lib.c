@@ -37,8 +37,11 @@
 /* ***************************    Includes     **************************** */
 
 // Std
+#include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <assert.h>
 
 // Libs
 #include "inc/curl/curl.h"
@@ -69,11 +72,12 @@ void curlLibInit(void)
 
 void curlLibBufferInit(httpDataBuffer_t *const p_buff)
 {
-    memcpy(p_buff, 0, sizeof(httpDataBuffer_t));
+    memset(p_buff, 0, sizeof(httpDataBuffer_t));
 }
 
 appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const url)
 {
+    appErrors_t result = APPERR_OK;
     CURL *curl_handle = curl_easy_init();
 
     if (curl_handle)
@@ -114,6 +118,7 @@ appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const u
                     else
                     {
                         // malloc failed
+                        result = APPERR_UNABLE_TO_ALLOCATE_MEMORY;
                     }
                 }
 
@@ -131,6 +136,7 @@ appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const u
                 else
                 {
                     // Something bad happened. It's possible the malloc failed
+                    result = APPERR_UNABLE_TO_ALLOCATE_MEMORY;
                 }
             }
         }
@@ -139,7 +145,7 @@ appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const u
         curl_easy_cleanup(curl_handle);
     }
 
-    // TODO: Make a meaningful return value
+    return result;
 }
 
 // Frees the buffer object after it has served it's purpose

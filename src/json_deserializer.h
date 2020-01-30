@@ -44,7 +44,7 @@
 #define JSON_ENUM_STR_BUFF_SIZE         40
 
 // Debug related macros, set to 1 to enable
-#define JSON_DEBUG_MSG_ENABLED        (0)
+#define JSON_DEBUG_MSG_ENABLED        (1)
 #define JSON_TRACE_MSG_ENABLED        (0)
 
 #define JSON_DEBUG_MSG(...)
@@ -54,10 +54,10 @@
 #define JSON_MODULE_STR           MODULE_NAME_DEBUG ": "
 // Prepend the module name to the debug messages
 #undef JSON_DEBUG_MSG
-#define JSON_DEBUG_MSG(...)       (logLogDebug(JSON_MODULE_STR __VA_ARGS__))
+#define JSON_DEBUG_MSG(...)       (printf(JSON_MODULE_STR __VA_ARGS__))
 #if (JSON_TRACE_MSG_ENABLED == 1)
 #undef JSON_TRACE_MSG
-#define JSON_TRACE_MSG(...)       (logLogTrace(JSON_MODULE_STR __VA_ARGS__))
+#define JSON_TRACE_MSG(...)       (printf(JSON_MODULE_STR __VA_ARGS__))
 #endif
 #endif
 

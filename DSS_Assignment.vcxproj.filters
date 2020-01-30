@@ -13,22 +13,28 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\src">
+      <UniqueIdentifier>{2d794bc8-e366-4b49-b841-8a6062379fb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\lib">
+      <UniqueIdentifier>{e1e68562-6555-45c1-bcd2-fa4f8b58ee70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\curl_lib.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\src</Filter>
     </ClCompile>
     <ClCompile Include="src\main.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game_data_parser.c">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jsmn\jsmn.c">
+      <Filter>Source Files\lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\curl_lib.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\inc\curl\curl.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\inc\curl\curlver.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -52,6 +58,18 @@
     </ClInclude>
     <ClInclude Include="src\inc\curl\urlapi.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\inc\curl\curl.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\curl_lib.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game_data_parser.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsmn\jsmn.h">
+      <Filter>Source Files\lib</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

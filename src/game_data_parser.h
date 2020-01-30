@@ -48,6 +48,7 @@
 
 /* ****************************   Structures   **************************** */
 
+// Data coming out of objects in the "games" array data
 typedef struct
 {
     const char date_str[ISO8601_TIME_STR_LEN];  // gameDate

@@ -43,7 +43,8 @@
 #include <stdint.h>
 
 // Module
-#include "curl_lib.h"
+#include "errors.h"
+#include "game_data_parser.h"
 
 /* ***************************   Definitions   **************************** */
 
@@ -61,10 +62,7 @@ void main(void)
 {
     printf("DSS App Started!");
 
-    httpDataBuffer_t json_data;
-    curlLibBufferInit(&json_data);
-    curlLibGetData(&json_data, "http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
-    curlLibFreeData(&json_data);
+    gameDataParserGatherData("http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
 }
 
 /* *************************   Private Functions   ************************ */
