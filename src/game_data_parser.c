@@ -157,11 +157,6 @@ const jsonKeyValue_t g_list_of_game_obj_values[] =
 
 /* *************************   Public  Functions   ************************ */
 
-void gameDataParserInit(void)
-{
-    // take in a handle to a semaphore to indicate that parsing is complete?
-}
-
 //
 void gameDataParserGatherData(const char *const p_json_url)
 {
@@ -272,11 +267,6 @@ static void gameDataFreeTokenData(jsmnTokenizationData_t *const p_token_data)
 // NOTE: This could enforce that "games" is a child of "dates", since "dates" is the child of the parent object
 // NOTE: but for now this lazy approach should work (barring no second "games" array shows up in the data).
 //
-// NOTE: This could be turned into a generic function that could find any array/object given a key and
-// NOTE: possibly a path. (i.e. given the string "dates.games", it could seek to the element with that key
-// NOTE: and return the type (array, object, string or primitive) and the token index). It could potentially
-// NOTE: even take an expected type to ensure the caller gets exactly what is expected, instead of having
-// NOTE: to re-query.
 // Searches the token list for the named array.
 // Returns an index of the token in the list for the corresponding array
 static int gameDataFindArray(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff,
