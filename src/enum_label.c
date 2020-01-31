@@ -35,6 +35,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 // Module Includes
 #include "enum_label.h"
@@ -44,7 +46,7 @@
 //
 // Figures out what label is associated with a value from a {value, label} table
 //
-const char *elGetLabel(enumLabel_t const *el, const int value)
+const char *elGetLabel(const enumLabel_t *el, const int value)
 {
     assert(el != NULL);
     char *label = NULL;
@@ -81,7 +83,7 @@ bool elGetValueFromString(const enumLabel_t *el, const char *const label, int *v
         }
         else
         {
-            cmp_res = strcasecmp(el->label, label);
+            cmp_res = _stricmp(el->label, label);
         }
 
         if (cmp_res == 0)
@@ -117,7 +119,7 @@ bool elGetValueFromBuffer(const enumLabel_t *el, const char *const label,
         }
         else
         {
-            cmp_res = strncasecmp(el->label, label, label_size);
+            cmp_res = _strnicmp(el->label, label, label_size);
         }
 
         if (cmp_res == 0)

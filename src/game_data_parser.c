@@ -52,8 +52,8 @@
 // App
 #include "curl_lib.h"
 #include "errors.h"
-#include "json_deserializer.h"
 #include "utility.h"
+#include "json_deserialization.h"
 
 // Module
 #include "game_data_parser.h"
@@ -70,14 +70,22 @@ typedef struct gameDataNode gameDataNode_t;
 struct gameDataNode
 {
     gameDataNode_t *next;
+    gameDataNode_t *prev;
     gameData_t *p_data;
 };
 
+// Stuct in which the game json data will be parsed into
 typedef struct
 {
-    int num_tokens;      // Number of tokens in the dataset
-    jsmntok_t *p_tokens; // Pointer to the tokens
-} jsmnTokenizationData_t;
+    jsonStr_t game_date;      // gameDate
+    jsonStr_t home_team_name; // teams.home.team.name
+    jsonStr_t away_team_name; // teams.away.team.name
+    jsonStr_t detailed_state; // status.detailedState
+    uint32_t home_score;      // teams.home.score
+    uint32_t away_score;      // teams.away.score
+    jsonStr_t img_url;        // content.editorial.recap.home.photo.cuts.1920x1080.src
+} gameDataObj_t;
+
 
 /* ***********************   Function Prototypes   ************************ */
 
@@ -87,68 +95,63 @@ static int gameDataFindArray(const jsmnTokenizationData_t *const p_tok_data, con
                              const char *const key_of_array_str);
 static void gameDataDeserializeGames(const int game_array_idx, const jsmnTokenizationData_t *const p_token_data,
                                      const char *const p_json_buff, const size_t json_content_length);
+static gameDataNode_t* gameDataDeserializeGame(const gameDataObj_t* p_game_data_obj,  gameDataNode_t *p_prev_node);
 
 /* ***********************   File Scope Variables   *********************** */
 
-// Stuct in which the game json data will be parsed into
-typedef struct
+
+const jsonKeyValue_t g_list_of_game_obj_values[] =
 {
-    jsonStr_t game_date;
-    jsonStr_t home_team_name;
-    jsonStr_t away_team_name;
-    jsonStr_t detailed_state;
-    uint32_t home_score;
-    uint32_t away_score;
-    jsonStr_t img_url;
-} gameDataObj_t;
-
-// ******* BEGIN JSON parsing structures *******
-
-static const jsonKeyValue_t g_root_obj_data[] =
     {
-        {
-            .key_str = "gameDate",
-            .c_type = E_JSON_C_STR_PTR,
-            .struct_member_offset = offsetof(gameDataObj_t, game_date),
-            .struct_member_size = MEMBER_SIZE(gameDataObj_t, game_date),
-            .value_tok_type = JSMN_STRING,
-        }};
-
-// Game Object root Keylist definition
-static const jsonKeyValueList_t g_root_key_list =
+        .key_str = "gameDate",
+        .c_type = E_JSON_C_STR_PTR,
+        .value_tok_type = JSMN_STRING,
+        .struct_member_offset = offsetof(gameDataObj_t, game_date),
+        .struct_member_size = MEMBER_SIZE(gameDataObj_t, game_date)
+    },
     {
-        .p_keys = g_root_obj_data,
-        .size = ARRAY_SIZE(g_root_obj_data)};
-
-static const jsonKeyValue_t g_home_team_name_obj_data[] =
+        .key_str = "teams.home.team.name",
+        .c_type = E_JSON_C_STR_PTR,
+        .value_tok_type = JSMN_STRING,
+        .struct_member_offset = offsetof(gameDataObj_t, home_team_name),
+        .struct_member_size = MEMBER_SIZE(gameDataObj_t, home_team_name)
+    },
     {
-        {
-            .key_str = "gameDate",
-            .c_type = E_JSON_C_STR_PTR,
-            .struct_member_offset = offsetof(gameDataObj_t, game_date),
-            .struct_member_size = MEMBER_SIZE(gameDataObj_t, game_date),
-            .value_tok_type = JSMN_STRING,
-        }};
-
-static const jsonKeyValueList_t g_root_key_list =
+        .key_str = "teams.away.team.name",
+        .c_type = E_JSON_C_STR_PTR,
+        .value_tok_type = JSMN_STRING,
+        .struct_member_offset = offsetof(gameDataObj_t, away_team_name),
+        .struct_member_size = MEMBER_SIZE(gameDataObj_t, away_team_name)
+    },
     {
-        .p_keys = g_root_obj_data,
-        .size = ARRAY_SIZE(g_root_obj_data)};
-
-// Root object used a game object
-static jsonContainer_t g_root_obj =
+        .key_str = "teams.home.score",
+        .c_type = E_JSON_C_UINT32,
+        .value_tok_type = JSMN_PRIMITIVE,
+        .struct_member_offset = offsetof(gameDataObj_t, home_score),
+        .struct_member_size = MEMBER_SIZE(gameDataObj_t, home_score)
+    },
     {
-        .type = E_JSON_OBJECT,
-        .children = NULL,
-        .num_children = 0, // TODO: This will be 3
-        .key_str = NULL,
-        .p_key_list = &g_root_key_list,
-        .p_deserialized_elements = NULL, // Don't need to know which were deserialized
-        .p_elements_to_serialize = NULL, // Serialize all of the data
-        .p_data = NULL                   // TODO: Add pointer to game object struct
+        .key_str = "teams.away.score",
+        .c_type = E_JSON_C_UINT32,
+        .value_tok_type = JSMN_PRIMITIVE,
+        .struct_member_offset = offsetof(gameDataObj_t, away_score),
+        .struct_member_size = MEMBER_SIZE(gameDataObj_t, away_score)
+    },
+    {
+        .key_str = "status.detailedState",
+        .c_type = E_JSON_C_STR_PTR,
+        .value_tok_type = JSMN_STRING,
+        .struct_member_offset = offsetof(gameDataObj_t, detailed_state),
+        .struct_member_size = MEMBER_SIZE(gameDataObj_t, detailed_state)
+    },
+    {
+        .key_str = "content.editorial.recap.home.photo.cuts.1920x1080.src",
+        .c_type = E_JSON_C_STR_PTR,
+        .value_tok_type = JSMN_STRING,
+        .struct_member_offset = offsetof(gameDataObj_t, img_url),
+        .struct_member_size = MEMBER_SIZE(gameDataObj_t, img_url)
+    },
 };
-
-// ******* END JSON parsing structures *******
 
 /* ****************************   BEGIN CODE   **************************** */
 
@@ -210,7 +213,7 @@ void gameDataParserFreeGameList(gameDataNode_t *p_list)
 
 /* *************************   Private Functions   ************************ */
 
-// Utilizes JSMN JSON tokenizer to tokenize the json data
+// Utilizes jsmn JSON tokenizer to tokenize the json data
 static bool gameDataTokenizeJson(jsmnTokenizationData_t *const p_token_data,
                                  const char *const p_json_buff,
                                  const size_t json_content_length)
@@ -238,7 +241,6 @@ static bool gameDataTokenizeJson(jsmnTokenizationData_t *const p_token_data,
                 p_token_data->num_tokens *= 2;
                 free(p_token_data->p_tokens);
                 p_token_data->p_tokens = calloc(p_token_data->num_tokens, sizeof(jsmntok_t));
-                //tokenization_failed = (realloc(p_tokens, num_tokens * sizeof(jsmntok_t))) == NULL;
                 tokenization_failed = (p_token_data->p_tokens == NULL);
             }
             else if (jsmn_result < 0)
@@ -314,114 +316,116 @@ static int gameDataFindArray(const jsmnTokenizationData_t *const p_tok_data, con
 static void gameDataDeserializeGames(const int game_array_idx, const jsmnTokenizationData_t *const p_token_data,
                                      const char *const p_json_buff, const size_t json_content_length)
 {
-    // Check the next token, it should be an object token with a parent idx equal to game_array_idx
-    int next_game_tok_idx = (game_array_idx + 1);
-    if ((next_game_tok_idx < p_token_data->num_tokens) &&
-        (p_token_data->p_tokens[next_game_tok_idx].parent == game_array_idx))
-    {
-        jsmntok_t *p_game_obj_tok = &p_token_data->p_tokens[next_game_tok_idx];
+    // Determine the number of games by the size of the ARRAY token
+    int num_games = p_token_data->p_tokens[game_array_idx].size;
 
-        // If this is true, tokenize this object, create a new buffer that points to the object start
-        // then pass it off to be deserialized
-        jsmnTokenizationData_t game_obj_token_data;
-        const char *const obj_start_char = (p_json_buff + p_game_obj_tok->start);
-        const int obj_len = p_game_obj_tok->end - p_game_obj_tok->start;
-        bool result = gameDataTokenizeJson(&game_obj_token_data, obj_start_char, obj_len);
+    // Declare pointer that will point to the linked list
+    gameDataNode_t *current_node = NULL;
 
-        // TODO: Deserialize the game data
+    // TODO: Iterate through all the games
+    for(int idx = 0; idx < num_games; idx++){
 
-        // Free the JSON tokens after deserialization is finished
-        gameDataFreeTokenData(&game_obj_token_data);
+        // Check the next token, it should be an object token with a parent idx equal to game_array_idx
+        int next_game_tok_idx = (game_array_idx + 1);
+        if ((next_game_tok_idx < p_token_data->num_tokens) &&
+            (p_token_data->p_tokens[next_game_tok_idx].parent == game_array_idx))
+        {
+            jsmntok_t *p_game_obj_tok = &p_token_data->p_tokens[next_game_tok_idx];
+
+            // If this is true, tokenize this object, create a new buffer that points to the object start
+            // then pass it off to be deserialized
+            jsmnTokenizationData_t game_obj_token_data;
+            const char *const obj_start_char = (p_json_buff + p_game_obj_tok->start);
+            const int obj_len = p_game_obj_tok->end - p_game_obj_tok->start;
+            bool result = gameDataTokenizeJson(&game_obj_token_data, obj_start_char, obj_len);
+
+            // Find the value token that matches the desired element and deserialize the game data
+            gameDataObj_t game_data_deserialized;
+            memset(&game_data_deserialized, 0, sizeof(gameDataObj_t));
+            for(int jdx = 0; jdx < ARRAY_SIZE(g_list_of_game_obj_values); jdx++)
+            {
+                const jsonKeyValue_t *const p_value_data = &g_list_of_game_obj_values[jdx];
+                int value_tok_idx = jsonSearchForElement(&game_obj_token_data, obj_start_char,p_value_data);
+
+                // Game objects should always contain the specified elements. If not, something is wrong.
+                assert(value_tok_idx > 0);
+                if(value_tok_idx > 0)
+                {
+                    // Index of token was found, go deserialize into data struct.
+                    jsonDeserializeElement(p_value_data, &game_obj_token_data.p_tokens[value_tok_idx],
+                                        obj_start_char, &game_data_deserialized);
+
+                }
+            }
+
+            // Turn datastruct into linked list object to be returned
+            current_node = gameDataDeserializeGame(&game_data_deserialized, current_node);
+
+            // Free the JSON tokens after deserialization is finished
+            gameDataFreeTokenData(&game_obj_token_data);
+        }
     }
 }
 
 // Expects to be passed a token belonging to the beginning of the object inside the named "game" array
-static void gameDataDeserializeGame(void)
+static gameDataNode_t* gameDataDeserializeGame(const gameDataObj_t* p_game_data_obj,  gameDataNode_t *p_prev_node)
 {
-}
+    gameDataNode_t *p_node = malloc(sizeof(gameDataNode_t));
 
-// TODO: Move JSON related items out of here
-
-// Searches for an expected object (based on a dot notation of the reference) in the json
-// data and returns a JSMN token index of that data
-// NOTE: There is no support of wildcards ('*' or '?') in the search
-static int jsonSearchForElement(const jsmnTokenizationData_t *const p_tok_data, const char *const json_ref, const jsmntok_t type)
-{
-    // Check for malformed reference
-    assert((*json_ref != '\0') && (*json_ref != '.'));
-
-    int current_char_idx = 0;
-    int last_element_start = 0;
-    while (json_ref[current_char_idx] != '\0')
+    if(p_node != NULL)
     {
-        // Look to see if current character is a '.'
-        if (json_ref[current_char_idx] != '.')
+        // Set the previous node to the one specified (even if null)
+        p_node->prev = p_prev_node;
+        if(p_prev_node != NULL)
         {
-            // Found the end of the current reference
+            // If there is a previous node, set it to this one
+            p_prev_node->next = p_node;
+        }
+        // Set the next node to null, since there is no next node
+        p_node->next = NULL;
 
-            // Form a string, and search for a token with the required parent
+        // allocate the space for the game data and start to populate
+        p_node->p_data = malloc(sizeof(gameData_t));
+
+        if(p_node->p_data != NULL)
+        {
+            // Set the variables in the game data that do not need to be malloc'd (non-strings)
+            p_node->p_data->home_team_score = p_game_data_obj->home_score;
+            p_node->p_data->away_team_score = p_game_data_obj->away_score;
+            strncpy_s(p_node->p_data->date_str, ARRAY_SIZE(p_node->p_data->date_str), p_game_data_obj->game_date.str,  p_game_data_obj->game_date.len);
+
+            // Malloc the strings
+            // NOTE: jsonStr_t.len does NOT account for the NULL byte, it is simply the length of the character data (hence the additional byte)
+            p_node->p_data->p_home_team_name = malloc(p_game_data_obj->home_team_name.len + 1);
+            p_node->p_data->p_away_team_name = malloc(p_game_data_obj->away_team_name.len + 1);
+            p_node->p_data->p_img_url        = malloc(p_game_data_obj->img_url.len + 1);
+            p_node->p_data->p_detailed_state = malloc(p_game_data_obj->detailed_state.len + 1);
+
+            if( p_node->p_data->p_home_team_name != NULL &&
+                p_node->p_data->p_away_team_name != NULL &&
+                p_node->p_data->p_img_url        != NULL &&
+                p_node->p_data->p_detailed_state != NULL)
+            {
+                // Copy all the data into the allocated string space.
+                strncpy_s(p_node->p_data->p_home_team_name, (p_game_data_obj->home_team_name.len + 1), p_game_data_obj->home_team_name.str,p_game_data_obj->home_team_name.len);
+                strncpy_s(p_node->p_data->p_away_team_name, (p_game_data_obj->away_team_name.len + 1), p_game_data_obj->away_team_name.str,p_game_data_obj->away_team_name.len);
+                strncpy_s(p_node->p_data->p_img_url,        (p_game_data_obj->img_url.len + 1)       , p_game_data_obj->img_url.str       ,p_game_data_obj->img_url.len       );
+                strncpy_s(p_node->p_data->p_detailed_state, (p_game_data_obj->detailed_state.len + 1), p_game_data_obj->detailed_state.str,p_game_data_obj->detailed_state.len);
+            }
+            else
+            {
+                // TODO: Malloc failed,  Free all previously malloc'd items
+
+                p_node = NULL;
+            }
         }
         else
         {
-            // Assume is part of the next reference and keep going
+            // TODO: Malloc failed,  Free all previously malloc'd items
+
+            p_node = NULL;
         }
-        current_char_idx++;
-    }
-}
-
-static int jsonFindElement(const jsmnTokenizationData_t *const p_tok_data, const char *const key_str, const jsmntok_t type, const int parent_idx)
-{
-    int idx = 0;
-    bool key_found = false;
-    while (idx < p_tok_data->num_tokens && !key_found)
-    {
-        // Parent object matches and the data is a string
-        if (p_tok_data->p_tokens[idx].parent == parent_idx &&
-            p_tok_data->p_tokens[idx].type == JSMN_STRING)
-        {
-            // Check to see if key string matches to the JSON string data
-
-            // If true, check to see the next token type matches the required type, if so, object is
-            // otherwise keep going
-        }
-
-        ++idx;
     }
 
-    // If idx is the number of elements, element wasn't found in the list.
-    ASSERT(idx != num_of_settings);
+    return p_node;
 }
-
-// static int jsonFindElement(const jsmnTokenizationData_t *const p_tok_data, const httpDataBuffer_t *const p_buff,
-//                                   const char *const key_of_array_str)
-// {
-//     bool at_buffer_end = false;
-//     bool matching_token_found = false;
-
-//     // This will be the index where the game data is found
-//     int token_idx = 0;
-//     while ((token_idx < p_tok_data->num_tokens) && !matching_token_found)
-//     {
-//         // The token must be at least beyond the first token, otherwise it can't be a named array
-//         if (p_tok_data->p_tokens[token_idx].type == JSMN_ARRAY && token_idx > 0)
-//         {
-//             // Check the key token, which is the token before the current, to see if the string matches
-//             const jsmntok_t *const p_tok = &p_tok_data->p_tokens[token_idx - 1];
-//             // Catch access that will be out of bounds; This should never happen
-//             assert(p_buff->content_length > (p_tok->start + p_tok->size));
-
-//             const char *const key_str = p_buff->p_buffer + p_tok->start;
-//             matching_token_found = (p_tok->type == JSMN_STRING) &&
-//                                    (strncmp(key_str, key_of_array_str, p_tok->size) == 0);
-//         }
-
-//         if (!matching_token_found)
-//         {
-//             token_idx++;
-//         }
-//     }
-
-//     // TODO: with a matching token, it's worthwhile to return the size of the array (size attrib in the token data)
-
-//     return (matching_token_found ? token_idx : -1);
-// }

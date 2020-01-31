@@ -12,7 +12,8 @@
 			"json_serialize_deserialize_types.h": "c",
 			"errors.h": "c",
 			"game_data_parser.h": "c",
-			"curl_lib.h": "c"
+			"curl_lib.h": "c",
+			"json_deserialization.h": "c"
 		}
 	}
 }

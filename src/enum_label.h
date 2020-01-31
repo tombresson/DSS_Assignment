@@ -56,6 +56,6 @@ typedef struct
 bool elGetValueFromString(const enumLabel_t *el, const char *const label, int *value, bool case_sensitive);
 bool elGetValueFromBuffer(const enumLabel_t *el, const char *const label,
                           int label_size, int *value, bool case_sensitive);
-const char *elGetLabel(enumLabel_t const *const el, int value);
+const char *elGetLabel(enumLabel_t const *el, const int value);
 
 #endif /* ENUM_LABEL_H */

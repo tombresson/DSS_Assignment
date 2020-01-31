@@ -51,20 +51,19 @@
 // Data coming out of objects in the "games" array data
 typedef struct
 {
-    const char date_str[ISO8601_TIME_STR_LEN];  // gameDate
-    const char *const p_img_url;                // content.editorial.recap.home.photo.cuts.1920x1080.src
-    const char *const p_home_team_name;         // teams.away.team.name
-    const char *const p_away_team_name;         // teams.home.team.name
-    const int home_team_score;                  // teams.away.score
-    const int away_team_score;                  // teams.home.score
-    const char *const p_detailed_state;         // status.detailedState
+    char date_str[ISO8601_TIME_STR_LEN];  // gameDate
+    char *p_img_url;                // content.editorial.recap.home.photo.cuts.1920x1080.src
+    char *p_home_team_name;         // teams.away.team.name
+    char *p_away_team_name;         // teams.home.team.name
+    int home_team_score;                  // teams.away.score
+    int away_team_score;                  // teams.home.score
+    char *p_detailed_state;         // status.detailedState
 }gameData_t;
 
 
 /* ***********************   Function Prototypes   ************************ */
 
-void getGameDataAtIdx(gameData_t *p_data, const int idx);
-void gameDataGetNext(gameData_t *p_data);
+void gameDataParserGatherData(const char *const p_json_url);
 
 /** @} */
 

@@ -33,6 +33,12 @@
     <ClCompile Include="src\jsmn\jsmn.c">
       <Filter>Source Files\lib</Filter>
     </ClCompile>
+    <ClCompile Include="src\json_deserialization.c">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\enum_label.c">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\inc\curl\curlver.h">
@@ -70,6 +76,15 @@
     </ClInclude>
     <ClInclude Include="src\jsmn\jsmn.h">
       <Filter>Source Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\json_deserialization.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\json_serialize_deserialize_types.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enum_label.h">
+      <Filter>Source Files\src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
