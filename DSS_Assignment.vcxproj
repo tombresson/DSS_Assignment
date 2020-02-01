@@ -126,14 +126,6 @@
     <ClInclude Include="src\inc\SDL2\SDL_vulkan.h" />
     <ClInclude Include="src\jsmn\jsmn.h" />
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="resources\1.jpg" />
-    <Image Include="resources\cut.jpg" />
-    <Image Include="resources\loading.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="resources\Myriad Pro Bold.ttf" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{975F1164-3357-47FA-98EC-52DA676DA921}</ProjectGuid>

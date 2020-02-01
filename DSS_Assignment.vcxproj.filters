@@ -336,20 +336,4 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="resources\1.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="resources\cut.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="resources\loading.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="resources\Myriad Pro Bold.ttf">
-      <Filter>Resource Files</Filter>
-    </Font>
-  </ItemGroup>
 </Project>
