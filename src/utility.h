@@ -9,3 +9,5 @@
 
 /// Maximum length of a uint32 as a string (biggest uint32 is 10 digits)
 #define MAX_UINT32_STR_LEN          11U
+
+#define MAX(a, b) (a > b ? a : b)

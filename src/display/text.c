@@ -61,6 +61,19 @@ static SDL_Texture *textGetTexture(SDL_Renderer *renderer, int font_size, char *
 
 /* *************************   Public  Functions   ************************ */
 
+textObject_t textCreateObj(const char *message, const int font_size, const int x, const int y)
+{
+    textObject_t new_text_obj =
+    {
+        .message = message,
+        .font_size = font_size,
+        .rect.x = x,
+        .rect.y = y
+    };
+
+    return new_text_obj;
+}
+
 void textDisplay(int x, int y, SDL_Renderer *renderer, textObject_t *text_obj)
 {
     text_obj->rect.x = x;

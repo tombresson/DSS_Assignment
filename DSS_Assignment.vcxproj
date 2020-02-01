@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\curl_lib.c" />
     <ClCompile Include="src\display.c" />
+    <ClCompile Include="src\display\game_info.c" />
     <ClCompile Include="src\display\text.c" />
     <ClCompile Include="src\enum_label.c" />
     <ClCompile Include="src\game_data_parser.c" />
@@ -125,6 +126,7 @@
     <ClInclude Include="src\inc\SDL2\SDL_video.h" />
     <ClInclude Include="src\inc\SDL2\SDL_vulkan.h" />
     <ClInclude Include="src\jsmn\jsmn.h" />
+    <ClInclude Include="src\shared_data_types.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -212,7 +214,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\Documents\GitHub\DSS_Assignment\src\inc\curl;E:\Documents\GitHub\DSS_Assignment\src\inc\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Documents\GitHub\DSS_Assignment\src;E:\Documents\GitHub\DSS_Assignment\src\inc;E:\Documents\GitHub\DSS_Assignment\src\inc\curl;E:\Documents\GitHub\DSS_Assignment\src\inc\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

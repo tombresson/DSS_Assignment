@@ -40,7 +40,7 @@
  */
 /* ***************************    Includes     **************************** */
 
-#include "inc/shared_data_types.h"
+#include "shared_data_types.h"
 
 /* ***************************   Definitions   **************************** */
 

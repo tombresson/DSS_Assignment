@@ -35,7 +35,7 @@
 
 /* ***************************    Includes     **************************** */
 
-#include "inc/shared_data_types.h"
+#include "shared_data_types.h"
 
 /* ***************************   Definitions   **************************** */
 
@@ -45,10 +45,12 @@ typedef struct
 {
     int pos_x;
     int pos_y;
-    const *gameData_t game_data;
-}gameInfoDisplay_t;
+    const gameData_t *game_data;
+}gameObject_t;
 
 
 /* ***********************   Function Prototypes   ************************ */
+
+void gameDisplay(int x, int y, SDL_Renderer *renderer, gameObject_t *game_obj);
 
 #endif /* GAME_INFO_H */

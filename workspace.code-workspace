@@ -16,7 +16,8 @@
 			"json_deserialization.h": "c",
 			"sdl.h": "c",
 			"sdl_ttf.h": "c",
-			"shared_data_types.h": "c"
+			"shared_data_types.h": "c",
+			"game_info.h": "c"
 		}
 	}
 }

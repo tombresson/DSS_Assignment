@@ -45,6 +45,9 @@
     <ClCompile Include="src\display\text.c">
       <Filter>Source Files\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\display\game_info.c">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\inc\curl\curlver.h">
@@ -333,6 +336,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\inc\SDL2\SDL_vulkan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\shared_data_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

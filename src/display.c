@@ -46,6 +46,7 @@
 
 // Module Includes
 #include "display/text.h"
+#include "display/game_info.h"
 #include "display.h"
 
 /* ***************************   Definitions   **************************** */
@@ -249,12 +250,14 @@ static void displayStartDisplayLoop(void)
     SDL_UpdateWindowSurface(g_window);
     SDL_Delay(1000);
 
-    textObject_t text;
-    memset(&text, 0, sizeof(textObject_t));
-    text.font_size = 24;
-    text.message = "Hello World";
+    // textObject_t text;
+    // memset(&text, 0, sizeof(textObject_t));
+    // text.font_size = 24;
+    // text.message = "Hello World";
+    //textDisplay(400, 200, g_renderer, &text);
 
-    textDisplay(400, 200, g_renderer, &text);
+    gameDisplay(500, 300, g_renderer,NULL);
+
     SDL_RenderPresent(g_renderer);
     SDL_Delay(5000);
 

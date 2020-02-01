@@ -40,7 +40,7 @@
 
 // Include for the error return type
 #include "errors.h"
-#include "inc/shared_data_types.h"
+#include "shared_data_types.h"
 
 /* ***************************   Definitions   **************************** */
 

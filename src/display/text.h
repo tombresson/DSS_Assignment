@@ -41,7 +41,7 @@
 
 typedef struct
 {
-    char *message;
+    const char *message;
     int font_size;
     SDL_Rect rect;
 }textObject_t;
@@ -49,6 +49,7 @@ typedef struct
 
 /* ***********************   Function Prototypes   ************************ */
 
+textObject_t textCreateObj(const char *message, const int font_size, const int x, const int y);
 void textDisplay(int x, int y, SDL_Renderer *renderer, textObject_t *text_obj);
 
 #endif /* TEXT_H */
