@@ -52,12 +52,12 @@
 typedef struct
 {
     char date_str[ISO8601_TIME_STR_LEN];  // gameDate
-    char *p_img_url;                // content.editorial.recap.home.photo.cuts.1920x1080.src
     char *p_home_team_name;         // teams.away.team.name
     char *p_away_team_name;         // teams.home.team.name
     int home_team_score;                  // teams.away.score
     int away_team_score;                  // teams.home.score
     char *p_detailed_state;         // status.detailedState
+    httpDataBuffer_t* p_img_data;   // Pointer to data that contains the image data.
 }gameData_t;
 
 

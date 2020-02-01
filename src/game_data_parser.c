@@ -204,6 +204,8 @@ void gameDataParserGatherData(const char *const p_json_url)
 void gameDataParserFreeGameList(gameDataNode_t *p_list)
 {
     // Traverse through the linked list freeing each bit that was malloc'd
+
+    // TODO: DON'T FORGET TO FREE THE IMG BUFFER
 }
 
 /* *************************   Private Functions   ************************ */
@@ -388,19 +390,29 @@ static gameDataNode_t* gameDataDeserializeGame(const gameDataObj_t* p_game_data_
             // NOTE: jsonStr_t.len does NOT account for the NULL byte, it is simply the length of the character data (hence the additional byte)
             p_node->p_data->p_home_team_name = malloc(p_game_data_obj->home_team_name.len + 1);
             p_node->p_data->p_away_team_name = malloc(p_game_data_obj->away_team_name.len + 1);
-            p_node->p_data->p_img_url        = malloc(p_game_data_obj->img_url.len + 1);
             p_node->p_data->p_detailed_state = malloc(p_game_data_obj->detailed_state.len + 1);
+            char* img_url_str                = malloc(p_game_data_obj->img_url.len + 1);  // Img URL is going to be used to download the image
+            httpDataBuffer_t *p_img_buff     = malloc(sizeof(httpDataBuffer_t));
+
 
             if( p_node->p_data->p_home_team_name != NULL &&
                 p_node->p_data->p_away_team_name != NULL &&
-                p_node->p_data->p_img_url        != NULL &&
-                p_node->p_data->p_detailed_state != NULL)
+                p_node->p_data->p_detailed_state != NULL &&
+                img_url_str                      != NULL &&
+                p_img_buff                       != NULL)
             {
                 // Copy all the data into the allocated string space.
                 strncpy_s(p_node->p_data->p_home_team_name, (p_game_data_obj->home_team_name.len + 1), p_game_data_obj->home_team_name.str,p_game_data_obj->home_team_name.len);
                 strncpy_s(p_node->p_data->p_away_team_name, (p_game_data_obj->away_team_name.len + 1), p_game_data_obj->away_team_name.str,p_game_data_obj->away_team_name.len);
-                strncpy_s(p_node->p_data->p_img_url,        (p_game_data_obj->img_url.len + 1)       , p_game_data_obj->img_url.str       ,p_game_data_obj->img_url.len       );
                 strncpy_s(p_node->p_data->p_detailed_state, (p_game_data_obj->detailed_state.len + 1), p_game_data_obj->detailed_state.str,p_game_data_obj->detailed_state.len);
+                strncpy_s(img_url_str,                      (p_game_data_obj->img_url.len + 1)       , p_game_data_obj->img_url.str       ,p_game_data_obj->img_url.len       );
+
+                // Last thing to do is download the image data
+                memset(p_img_buff, 0, sizeof(httpDataBuffer_t));
+                if(curlLibGetData(p_img_buff, img_url_str) == APPERR_OK)
+                {
+                    p_node->p_data->p_img_data = p_img_buff;
+                }
             }
             else
             {
