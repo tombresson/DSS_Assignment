@@ -193,17 +193,17 @@ static bool loadMedia()
     bool success = true;
 
     // Load splash image
-    g_background_surface = IMG_Load("1.jpg");
+    g_background_surface = IMG_Load("res/1.jpg");
     if (g_background_surface == NULL)
     {
-        printf("Unable to load image %s! SDL Error: %s\n", "1.jpg", SDL_GetError());
+        printf("Unable to load image %s! SDL Error: %s\n", "res/1.jpg", SDL_GetError());
         success = false;
     }
 
-    g_loading_surface = IMG_Load("loading.png");
+    g_loading_surface = IMG_Load("res/loading.png");
     if (g_loading_surface == NULL)
     {
-        printf("Unable to load image %s! SDL Error: %s\n", "loading.png", SDL_GetError());
+        printf("Unable to load image %s! SDL Error: %s\n", "res/loading.png", SDL_GetError());
         success = false;
     }
 

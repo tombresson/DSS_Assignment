@@ -49,6 +49,8 @@
 
 /* ***************************   Definitions   **************************** */
 
+#define FONT_FILE       "res/Myriad Pro Bold.ttf"
+
 /* ****************************   Structures   **************************** */
 
 /* ***********************   Function Prototypes   ************************ */
@@ -82,10 +84,10 @@ static SDL_Texture *textGetTexture(SDL_Renderer *renderer, int font_size, char *
     if(font == NULL)
     {
         // This can leak if called more than once, and PROBABLY should be cleaned up after
-        font = TTF_OpenFont("Myriad Pro Bold.ttf",18);
+        font = TTF_OpenFont(FONT_FILE,18);
         if (font == NULL)
         {
-            printf("Unable to load font %s! SDL Error: %s\n", "Myriad Pro Bold", TTF_GetError());
+            printf("Unable to load font %s! SDL Error: %s\n", FONT_FILE, TTF_GetError());
         }
     }
 
