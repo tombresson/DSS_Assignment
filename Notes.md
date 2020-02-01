@@ -19,3 +19,9 @@
 * [x] Add `errors.h` to allow modules to throw errors codes up to the main call
 * [ ] Add errors to the malloc failure cases
 * [ ] Fix headers to be uniform across files
+
+
+## SDL Notes
+
+* Create RWops data from memory data: https://wiki.libsdl.org/SDL_RWFromMem
+*

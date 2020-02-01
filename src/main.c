@@ -44,6 +44,8 @@
 
 // Module
 #include "errors.h"
+#include "display.h"
+#include "curl_lib.h"
 #include "game_data_parser.h"
 
 /* ***************************   Definitions   **************************** */
@@ -58,11 +60,11 @@
 
 /* *************************   Public  Functions   ************************ */
 
-void main(void)
+void WinMain(void)
 {
     printf("DSS App Started!");
-
-    gameDataParserGatherData("http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
+    display();
+    //gameDataParserGatherData("http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
 }
 
 /* *************************   Private Functions   ************************ */
