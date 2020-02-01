@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\curl_lib.c" />
+    <ClCompile Include="src\display.c" />
     <ClCompile Include="src\enum_label.c" />
     <ClCompile Include="src\game_data_parser.c" />
     <ClCompile Include="src\jsmn\jsmn.c" />
@@ -28,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\curl_lib.h" />
+    <ClInclude Include="src\display.h" />
     <ClInclude Include="src\enum_label.h" />
     <ClInclude Include="src\game_data_parser.h" />
     <ClInclude Include="src\inc\curl\curl.h" />
@@ -129,10 +131,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>E:\Documents\GitHub\DSS_Assignment\src\inc\curl;E:\Documents\GitHub\DSS_Assignment\src\inc\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>E:\Documents\GitHub\DSS_Assignment\src\lib\SDL2\SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

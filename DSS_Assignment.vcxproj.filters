@@ -21,9 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\curl_lib.c">
-      <Filter>Source Files\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.c">
       <Filter>Source Files\src</Filter>
     </ClCompile>
@@ -37,6 +34,12 @@
       <Filter>Source Files\src</Filter>
     </ClCompile>
     <ClCompile Include="src\enum_label.c">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\curl_lib.c">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\display.c">
       <Filter>Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,9 +71,6 @@
     <ClInclude Include="src\inc\curl\curl.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\curl_lib.h">
-      <Filter>Source Files\src</Filter>
-    </ClInclude>
     <ClInclude Include="src\game_data_parser.h">
       <Filter>Source Files\src</Filter>
     </ClInclude>
@@ -84,6 +84,12 @@
       <Filter>Source Files\src</Filter>
     </ClInclude>
     <ClInclude Include="src\enum_label.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\curl_lib.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\display.h">
       <Filter>Source Files\src</Filter>
     </ClInclude>
   </ItemGroup>
