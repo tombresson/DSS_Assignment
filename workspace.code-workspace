@@ -13,7 +13,10 @@
 			"errors.h": "c",
 			"game_data_parser.h": "c",
 			"curl_lib.h": "c",
-			"json_deserialization.h": "c"
+			"json_deserialization.h": "c",
+			"sdl.h": "c",
+			"sdl_ttf.h": "c",
+			"shared_data_types.h": "c"
 		}
 	}
 }

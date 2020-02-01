@@ -6,3 +6,6 @@
 
 // Gets the size of a struct member of the specified type
 #define MEMBER_SIZE(type, member) sizeof(((type *)0)->member)
+
+/// Maximum length of a uint32 as a string (biggest uint32 is 10 digits)
+#define MAX_UINT32_STR_LEN          11U

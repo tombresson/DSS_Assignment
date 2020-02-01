@@ -40,26 +40,11 @@
  */
 /* ***************************    Includes     **************************** */
 
+#include "inc/shared_data_types.h"
+
 /* ***************************   Definitions   **************************** */
 
-// Defines the total length needed to store a ISO8601 string
-// the millisecond component may or may not be actively being used
-#define ISO8601_TIME_STR_LEN                    (sizeof("2018-12-31T11:59:59.999Z"))
-
 /* ****************************   Structures   **************************** */
-
-// Data coming out of objects in the "games" array data
-typedef struct
-{
-    char date_str[ISO8601_TIME_STR_LEN];  // gameDate
-    char *p_home_team_name;         // teams.away.team.name
-    char *p_away_team_name;         // teams.home.team.name
-    int home_team_score;                  // teams.away.score
-    int away_team_score;                  // teams.home.score
-    char *p_detailed_state;         // status.detailedState
-    httpDataBuffer_t* p_img_data;   // Pointer to data that contains the image data.
-}gameData_t;
-
 
 /* ***********************   Function Prototypes   ************************ */
 

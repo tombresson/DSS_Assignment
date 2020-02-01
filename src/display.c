@@ -30,20 +30,22 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-
 /* ***************************    Includes     **************************** */
 
 // Standard Includes
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
 
 // Library Includes
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 
 // Project Includes
 
 // Module Includes
+#include "display/text.h"
 #include "display.h"
 
 /* ***************************   Definitions   **************************** */
@@ -64,9 +66,8 @@ const int SCREEN_HEIGHT = 1080;
 #define AMASK = 0xff000000;
 #endif
 
-#define THUMB_H    270
-#define THUMB_W    480
-
+#define THUMB_H 270
+#define THUMB_W 480
 
 /* ****************************   Structures   **************************** */
 
@@ -77,23 +78,25 @@ static void close();
 static void displayStartDisplayLoop(void);
 static void displayShowGameData(void);
 
-SDL_Texture* loadTextureFile(char *file, SDL_Renderer *ren);
+SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
 
 /* ***********************   File Scope Variables   *********************** */
 
 // The window we'll be rendering to
-SDL_Window* g_window = NULL;
+SDL_Window *g_window = NULL;
 
 // Renderer to use
-SDL_Renderer* g_renderer = NULL;
+SDL_Renderer *g_renderer = NULL;
 
 // The surface contained by the window
-SDL_Surface* g_screen_surface = NULL;
+SDL_Surface *g_screen_surface = NULL;
 
 // The image we will load and show on the screen
-SDL_Surface* g_background_surface = NULL;
-SDL_Surface* g_loading_surface = NULL;
+SDL_Surface *g_background_surface = NULL;
+SDL_Surface *g_loading_surface = NULL;
+
+TTF_Font *g_game_display_font = NULL;
 
 /* *************************   Public  Functions   ************************ */
 
@@ -125,29 +128,41 @@ int display()
 
 /* *************************   Private Functions   ************************ */
 
-
 static bool init()
 {
     // Initialization flag
     bool success = true;
 
     // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    int main_init_retval = SDL_Init(SDL_INIT_VIDEO);
+    if (main_init_retval == -1)
     {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         success = false;
     }
-    else
-    {
-        // load support for the JPG and PNG image formats
-        int flags = IMG_INIT_JPG | IMG_INIT_PNG;
-        int initted = IMG_Init(flags);
-        if ((initted & flags) != flags) {
-            printf("IMG_Init: Failed to init required jpg and png support!\n");
-            printf("IMG_Init: %s\n", IMG_GetError());
-            // handle error
-        }
 
+    // load support for the JPG and PNG image formats
+    int flags = IMG_INIT_JPG | IMG_INIT_PNG;
+    int img_init_retval = IMG_Init(flags);
+    if ((img_init_retval & flags) != flags)
+    {
+        printf("IMG_Init: Failed to init required jpg and png support!\n");
+        printf("IMG_Init: %s\n", IMG_GetError());
+        // handle error
+        success = false;
+    }
+
+    int ttf_init_retval = TTF_Init();
+    if (ttf_init_retval == -1)
+    {
+        printf("TTF_Init: Failed to init!\n");
+        printf("TTF_Init: %s\n", TTF_GetError());
+        // handle error
+        success = false;
+    }
+
+    if (success)
+    {
         // Create window
         g_window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (g_window == NULL)
@@ -172,8 +187,6 @@ static bool init()
     return success;
 }
 
-
-
 static bool loadMedia()
 {
     // Loading success flag
@@ -183,7 +196,7 @@ static bool loadMedia()
     g_background_surface = IMG_Load("1.jpg");
     if (g_background_surface == NULL)
     {
-        printf("Unable to load image %s! SDL Error: %s\n", "1.bmp", SDL_GetError());
+        printf("Unable to load image %s! SDL Error: %s\n", "1.jpg", SDL_GetError());
         success = false;
     }
 
@@ -194,12 +207,8 @@ static bool loadMedia()
         success = false;
     }
 
-
     return success;
 }
-
-
-
 
 static void close()
 {
@@ -218,10 +227,10 @@ static void close()
     g_window = NULL;
 
     // Quit SDL subsystems
+    TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
 }
-
-
 
 static void displayStartDisplayLoop(void)
 {
@@ -233,27 +242,35 @@ static void displayStartDisplayLoop(void)
     // Update the surface
     SDL_UpdateWindowSurface(g_window);
     SDL_Delay(3000);
-	// TODO: wait for the download? Do the download?
+    // TODO: wait for the download? Do the download?
 
     // Done loading.
     SDL_BlitSurface(g_background_surface, NULL, g_screen_surface, NULL);
     SDL_UpdateWindowSurface(g_window);
     SDL_Delay(1000);
 
-	// Display the game data
-    displayShowGameData();
+    textObject_t text;
+    memset(&text, 0, sizeof(textObject_t));
+    text.font_size = 24;
+    text.message = "Hello World";
+
+    textDisplay(400, 200, g_renderer, &text);
+    SDL_RenderPresent(g_renderer);
+    SDL_Delay(5000);
+
+    // // Display the game data
+    // displayShowGameData();
 }
 
 static void displayShowGameData(void)
 {
-
 
     // /* SDL interprets each pixel as a 32-bit number, so our masks must depend
     //    on the endianness (byte order) of the machine */
     // SDL_Surface *cut_base_surface = SDL_CreateRGBSurface(0, 480, 270, 32,
     //                                RMASK, GMASK, BMASK, AMASK);
 
-	// SDL_Surface* cut_surface = IMG_Load("cut.jpg");
+    // SDL_Surface* cut_surface = IMG_Load("cut.jpg");
     // assert(cut_surface != NULL);
 
     // SDL_Rect srcrect;
@@ -272,23 +289,21 @@ static void displayShowGameData(void)
     // SDL_RenderDrawRect(g_renderer, &srcrect);
     // SDL_Delay(1000);
     //SDL_Texture* cut_texture = loadTextureFile("cut.jpg", g_renderer);
-    SDL_Texture* cut_texture = loadTextureFile("cut.jpg", g_renderer);
+    SDL_Texture *cut_texture = loadTextureFile("cut.jpg", g_renderer);
     renderTexture(cut_texture, g_renderer, 900, 500, THUMB_W, THUMB_H);
     SDL_RenderPresent(g_renderer);
     SDL_Delay(5000);
 }
 
-
-
-SDL_Texture* loadTextureFile(char *file, SDL_Renderer *ren)
+SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren)
 {
-	SDL_Texture *texture = IMG_LoadTexture(ren, file);
-	if (texture == NULL){
-		printf("LoadTexture Error");
-	}
-	return texture;
+    SDL_Texture *texture = IMG_LoadTexture(ren, file);
+    if (texture == NULL)
+    {
+        printf("LoadTexture Error");
+    }
+    return texture;
 }
-
 
 /**
 * Draw an SDL_Texture to an SDL_Renderer at position x, y, with some desired
@@ -303,11 +318,11 @@ SDL_Texture* loadTextureFile(char *file, SDL_Renderer *ren)
 
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h)
 {
-	//Setup the destination rectangle to be at the position we want
-	SDL_Rect dst;
-	dst.x = x;
-	dst.y = y;
-	dst.w = w;
-	dst.h = h;
-	SDL_RenderCopy(ren, tex, NULL, &dst);
+    //Setup the destination rectangle to be at the position we want
+    SDL_Rect dst;
+    dst.x = x;
+    dst.y = y;
+    dst.w = w;
+    dst.h = h;
+    SDL_RenderCopy(ren, tex, NULL, &dst);
 }

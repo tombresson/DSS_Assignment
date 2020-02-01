@@ -42,6 +42,9 @@
     <ClCompile Include="src\display.c">
       <Filter>Source Files\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\display\text.c">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\inc\curl\curlver.h">
@@ -71,25 +74,10 @@
     <ClInclude Include="src\inc\curl\curl.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game_data_parser.h">
-      <Filter>Source Files\src</Filter>
-    </ClInclude>
     <ClInclude Include="src\jsmn\jsmn.h">
       <Filter>Source Files\lib</Filter>
     </ClInclude>
-    <ClInclude Include="src\json_deserialization.h">
-      <Filter>Source Files\src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\json_serialize_deserialize_types.h">
-      <Filter>Source Files\src</Filter>
-    </ClInclude>
     <ClInclude Include="src\enum_label.h">
-      <Filter>Source Files\src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\curl_lib.h">
-      <Filter>Source Files\src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\display.h">
       <Filter>Source Files\src</Filter>
     </ClInclude>
     <ClInclude Include="src\inc\SDL2\begin_code.h">
@@ -347,5 +335,21 @@
     <ClInclude Include="src\inc\SDL2\SDL_vulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\1.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cut.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\loading.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="resources\Myriad Pro Bold.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
 </Project>

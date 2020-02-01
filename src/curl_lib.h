@@ -40,18 +40,12 @@
 
 // Include for the error return type
 #include "errors.h"
+#include "inc/shared_data_types.h"
 
 /* ***************************   Definitions   **************************** */
 
 /* ****************************   Structures   **************************** */
 
-typedef struct
-{
-    size_t size;
-    size_t content_length;
-    char *p_buffer;
-    char *p_pos;
-} httpDataBuffer_t;
 
 /* ***********************   Function Prototypes   ************************ */
 

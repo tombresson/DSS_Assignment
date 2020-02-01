@@ -57,6 +57,7 @@
 /* ***********************   Function Prototypes   ************************ */
 
 static size_t curlLibStoreJsonData(void *ptr, size_t size, size_t nmemb, void *stream);
+static size_t curlLibStdOutCbk(void* ptr, size_t size, size_t nmemb, void* userdata);
 
 /* ***********************   File Scope Variables   *********************** */
 
@@ -84,6 +85,9 @@ appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const u
     {
         CURLcode res;
         curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+        // NOTE: Must have a write callback set, or the libray will error
+        // NOTE: When running a console app, the default it stdout, so specifying one is not necessary
+        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, curlLibStdOutCbk);
         res = curl_easy_perform(curl_handle);
         if (res == CURLE_OK)
         {
@@ -169,4 +173,13 @@ static size_t curlLibStoreJsonData(void *ptr, size_t size, size_t nmemb, void *u
     p_buffer->p_pos += num_bytes_to_copy;
 
     return num_bytes_to_copy;
+}
+
+static size_t curlLibStdOutCbk(void* ptr, size_t size, size_t nmemb, void* userdata)
+{
+    printf("CURL - Response received:\n%s", (char *)ptr);
+    printf("CURL - Response handled %d bytes", (int)(size * nmemb));
+
+    // tell curl how many bytes we handled
+    return size * nmemb;
 }

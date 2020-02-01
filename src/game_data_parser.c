@@ -381,31 +381,41 @@ static gameDataNode_t* gameDataDeserializeGame(const gameDataObj_t* p_game_data_
 
         if(p_node->p_data != NULL)
         {
-            // Set the variables in the game data that do not need to be malloc'd (non-strings)
-            p_node->p_data->home_team_score = p_game_data_obj->home_score;
-            p_node->p_data->away_team_score = p_game_data_obj->away_score;
+            // Set the variables in the game data that do not need to be malloc'd
             strncpy_s(p_node->p_data->date_str, ARRAY_SIZE(p_node->p_data->date_str), p_game_data_obj->game_date.str,  p_game_data_obj->game_date.len);
 
             // Malloc the strings
             // NOTE: jsonStr_t.len does NOT account for the NULL byte, it is simply the length of the character data (hence the additional byte)
-            p_node->p_data->p_home_team_name = malloc(p_game_data_obj->home_team_name.len + 1);
-            p_node->p_data->p_away_team_name = malloc(p_game_data_obj->away_team_name.len + 1);
-            p_node->p_data->p_detailed_state = malloc(p_game_data_obj->detailed_state.len + 1);
+            p_node->p_data->home_team_name_str = malloc(p_game_data_obj->home_team_name.len + 1);
+            p_node->p_data->away_team_name_str = malloc(p_game_data_obj->away_team_name.len + 1);
+            p_node->p_data->detailed_state_str = malloc(p_game_data_obj->detailed_state.len + 1);
+
+            // Malloc data for the scores
+            p_node->p_data->home_team_score_str = malloc(MAX_UINT32_STR_LEN);
+            p_node->p_data->away_team_score_str = malloc(MAX_UINT32_STR_LEN);
+
+            // Malloc the space for the image
             char* img_url_str                = malloc(p_game_data_obj->img_url.len + 1);  // Img URL is going to be used to download the image
             httpDataBuffer_t *p_img_buff     = malloc(sizeof(httpDataBuffer_t));
 
 
-            if( p_node->p_data->p_home_team_name != NULL &&
-                p_node->p_data->p_away_team_name != NULL &&
-                p_node->p_data->p_detailed_state != NULL &&
-                img_url_str                      != NULL &&
-                p_img_buff                       != NULL)
+            if( p_node->p_data->home_team_name_str  != NULL &&
+                p_node->p_data->away_team_name_str  != NULL &&
+                p_node->p_data->home_team_score_str != NULL &&
+                p_node->p_data->away_team_score_str != NULL &&
+                p_node->p_data->detailed_state_str  != NULL &&
+                img_url_str                         != NULL &&
+                p_img_buff                          != NULL)
             {
                 // Copy all the data into the allocated string space.
-                strncpy_s(p_node->p_data->p_home_team_name, (p_game_data_obj->home_team_name.len + 1), p_game_data_obj->home_team_name.str,p_game_data_obj->home_team_name.len);
-                strncpy_s(p_node->p_data->p_away_team_name, (p_game_data_obj->away_team_name.len + 1), p_game_data_obj->away_team_name.str,p_game_data_obj->away_team_name.len);
-                strncpy_s(p_node->p_data->p_detailed_state, (p_game_data_obj->detailed_state.len + 1), p_game_data_obj->detailed_state.str,p_game_data_obj->detailed_state.len);
-                strncpy_s(img_url_str,                      (p_game_data_obj->img_url.len + 1)       , p_game_data_obj->img_url.str       ,p_game_data_obj->img_url.len       );
+                strncpy_s(p_node->p_data->home_team_name_str, (p_game_data_obj->home_team_name.len + 1), p_game_data_obj->home_team_name.str,p_game_data_obj->home_team_name.len);
+                strncpy_s(p_node->p_data->away_team_name_str, (p_game_data_obj->away_team_name.len + 1), p_game_data_obj->away_team_name.str,p_game_data_obj->away_team_name.len);
+                strncpy_s(p_node->p_data->detailed_state_str, (p_game_data_obj->detailed_state.len + 1), p_game_data_obj->detailed_state.str,p_game_data_obj->detailed_state.len);
+                strncpy_s(img_url_str,                        (p_game_data_obj->img_url.len + 1)       , p_game_data_obj->img_url.str       ,p_game_data_obj->img_url.len       );
+
+                // Convert the scores to strings
+                snprintf(p_node->p_data->home_team_score_str, MAX_UINT32_STR_LEN, "%d", p_game_data_obj->home_score);
+                snprintf(p_node->p_data->away_team_score_str, MAX_UINT32_STR_LEN, "%d", p_game_data_obj->away_score);
 
                 // Last thing to do is download the image data
                 memset(p_img_buff, 0, sizeof(httpDataBuffer_t));
