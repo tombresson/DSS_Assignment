@@ -47,6 +47,6 @@
 drawableObj_t imgInitObjBuff(const int x, const int y, const uint8_t *buff, const size_t buff_len);
 drawableObj_t imgInitObjFile(const int x, const int y, const char *file_name);
 void imgDestroyObj(drawableObj_t *p_img_obj);
-void imgDisplay(drawableObj_t *obj, int x, int y, SDL_Renderer *renderer);
+void imgDisplay(drawableObj_t *obj, int x, int y, int w, int h, SDL_Renderer *renderer);
 
 #endif /* IMAGE_H */

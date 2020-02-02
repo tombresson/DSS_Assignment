@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-//  drawable.h
+//  display_types.h
 //
-//  Drawable Element
+//  Display Module Datatypes
 //
-//  Contains datastuctures for drawable elements.
+//  Contains common datatypes used in the display subsyste,
 //
 // The MIT License (MIT)
 //
@@ -30,69 +30,21 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef DRAWABLE_H
-#define DRAWABLE_H
+#ifndef DISPLAY_TYPES_H
+#define DISPLAY_TYPES_H
 
 /* ***************************    Includes     **************************** */
 
+// Include SDL for the SDL datatype
+#include <SDL.h>
+
 /* ***************************   Definitions   **************************** */
 
-typedef enum
-{
-    E_DRAWABLE_INVALID = 0,
-    E_DRAWABLE_TEXT,
-    E_DRAWABLE_IMG
-} drawableType_t;
-
-typedef enum
-{
-    E_IMGTYPE_NULL = 0,
-    E_IMGTYPE_FILE,
-    E_IMGTYPE_BUFF
-} imgObjType_t;
-
-typedef struct drawableObj drawableObj_t;
-
-typedef void (drawFcn_t)(drawableObj_t* obj, int x, int y, int w, int h, SDL_Renderer *renderer);
+// Event Handler function - For modules to implement their own event handlers
+typedef void (displayEventHandlerFcn_t)(const SDL_Event *p_event);
 
 /* ****************************   Structures   **************************** */
 
-typedef struct
-{
-    const char *message;
-    int font_size;
-    SDL_Texture *texture;
-    SDL_Rect rect;
-} textObject_t;
-
-// Image objects can be built either from a file name or a data buffer
-typedef struct
-{
-    imgObjType_t type;
-    union {
-        struct
-        {
-            const uint8_t *buff;
-            size_t buff_len;
-        };
-        const char *file_name;
-    };
-    SDL_Texture *texture;
-    SDL_Rect rect;
-} imgObject_t;
-
-
-
-struct drawableObj
-{
-    drawableType_t type;
-    union {
-        imgObject_t img;
-        textObject_t text;
-    };
-    drawFcn_t *draw;
-};
-
 /* ***********************   Function Prototypes   ************************ */
 
-#endif /* DRAWABLE_H */
+#endif /* DISPLAY_TYPES_H */

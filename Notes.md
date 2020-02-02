@@ -19,6 +19,8 @@
 * [x] Add `errors.h` to allow modules to throw errors codes up to the main call
 * [ ] Add errors to the malloc failure cases
 * [ ] Fix headers to be uniform across files
+* [ ] Create doubly linked list of "game graphics structs" as a static member
+* [ ] Game Display module could have an init function that passes back a handler for keypresses
 
 
 ## SDL Notes

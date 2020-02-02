@@ -110,13 +110,20 @@ void imgDestroyObj(drawableObj_t *p_img_obj)
     SDL_DestroyTexture(p_img_obj->img.texture);
 }
 
-void imgDisplay(drawableObj_t *obj, int x, int y, SDL_Renderer *renderer)
+void imgDisplay(drawableObj_t *obj, int x, int y, int w, int h, SDL_Renderer *renderer)
 {
     assert(obj->type == E_DRAWABLE_IMG);
 
     imgObject_t *img_obj = &obj->img;
     img_obj->rect.x = x;
     img_obj->rect.y = y;
+
+    // Width and height are options
+    if(w > 0 && h > 0)
+    {
+        img_obj->rect.w = w;
+        img_obj->rect.h = h;
+    }
 
     if (img_obj->texture == NULL)
     {

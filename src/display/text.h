@@ -46,6 +46,6 @@
 
 drawableObj_t textInitObj(const char *message, const int font_size, const int x, const int y);
 void textDestroyObj(drawableObj_t *p_text_obj);
-void textDisplay(drawableObj_t *obj, int x, int y, SDL_Renderer *renderer);
+void textDisplay(drawableObj_t *obj, int x, int y, int w, int h, SDL_Renderer *renderer);
 
 #endif /* TEXT_H */

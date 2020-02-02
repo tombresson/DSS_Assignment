@@ -88,7 +88,7 @@ static void displayShowGameData(void);
 SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
 
-static void displayHandleKeyPress(const SDL_Keysym key, bool *exit);
+static void displayHandleKeyPress(const SDL_Keysym key, bool* exit);
 
 /* ***********************   File Scope Variables   *********************** */
 
@@ -258,29 +258,25 @@ static void displayStartDisplay(void)
     gameDataNode_t *p_game_list =
         gameDataParserGatherData("http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
 
-    // Done loading.
-    // SDL_BlitSurface(g_background_surface, NULL, g_screen_surface, NULL);
-    // SDL_UpdateWindowSurface(g_window);
+    // Done loading
 
-    // // Render background
-    // imgObject_t background = imgInitObjFile(0,0,DISPLAY_BACKGROUND_FILE);
-    // imgDisplay(0,0,g_renderer, &background);
+    displayEventHandlerFcn_t *gameDispEvntHandler = gameDisplayInit(p_game_list);
 
-    // gameDisplayGames(p_game_list, g_renderer);
-    // SDL_RenderPresent(g_renderer);
 
-    // // Display the game data
-    // displayShowGameData();
+
+
+
+    // TODO: No longer need the game list, so it can be free'd
 
     // Start polling events
     SDL_Event event;
     bool exit = false;
+    drawableObj_t background = imgInitObjFile(0, 0, DISPLAY_BACKGROUND_FILE);
     while (!exit)
     {
-        drawableObj_t background = imgInitObjFile(0, 0, DISPLAY_BACKGROUND_FILE);
-        background.draw(&background, 0, 0, g_renderer);
+        background.draw(&background, 0, 0, 0, 0, g_renderer);
+        gameDisplayGames(g_renderer);
 
-        gameDisplayGames(p_game_list, g_renderer);
         SDL_RenderPresent(g_renderer);
 
         if (SDL_PollEvent(&event))
@@ -298,10 +294,14 @@ static void displayStartDisplay(void)
             default:
                 break;
             }
-        }
-    }
 
-    SDL_Delay(500);
+            // Call other event handlers
+            gameDispEvntHandler(&event);
+
+        }
+
+        SDL_RenderClear(g_renderer);
+    }
 }
 
 
@@ -309,19 +309,12 @@ static void displayHandleKeyPress(const SDL_Keysym key, bool *exit)
 {
     switch (key.sym)
     {
-    // case SDLK_RIGHT:
-    //     break;
-
-    // case SDLK_LEFT:
-    //     break;
 
     case SDLK_q:
         *exit = true;
         break;
 
     default:
-        // TODO: Pass it off to other functions to process keys
-
         break;
     }
 }

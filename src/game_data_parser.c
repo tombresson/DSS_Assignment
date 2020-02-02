@@ -373,6 +373,9 @@ static gameDataNode_t *gameDataDeserializeGame(const gameDataObj_t *p_game_data_
 
     if (p_node != NULL)
     {
+        // Clear out the dataspace to ensure no garbage in the pointers
+        memset(p_node, 0, sizeof(gameDataNode_t));
+
         // Set the previous node to the one specified (even if null)
         p_node->prev = p_prev_node;
         if (p_prev_node != NULL)

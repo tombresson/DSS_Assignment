@@ -89,13 +89,20 @@ void textDestroyObj(drawableObj_t *p_text_obj)
     SDL_DestroyTexture(p_text_obj->text.texture);
 }
 
-void textDisplay(drawableObj_t *obj, int x, int y, SDL_Renderer *renderer)
+void textDisplay(drawableObj_t *obj, int x, int y, int w, int h, SDL_Renderer *renderer)
 {
     assert(obj->type == E_DRAWABLE_TEXT);
 
     textObject_t *text_obj = &obj->text;
     text_obj->rect.x = x;
     text_obj->rect.y = y;
+
+    // Width and height are options
+    if(w > 0 && h > 0)
+    {
+        text_obj->rect.w = w;
+        text_obj->rect.h = h;
+    }
 
     if(text_obj->texture == NULL)
     {

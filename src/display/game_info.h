@@ -36,6 +36,7 @@
 /* ***************************    Includes     **************************** */
 
 #include "shared_data_types.h"
+#include "display_types.h"
 
 /* ***************************   Definitions   **************************** */
 
@@ -43,7 +44,9 @@
 
 /* ***********************   Function Prototypes   ************************ */
 
-void gameDisplayGames(const gameDataNode_t *p_game_node, SDL_Renderer *renderer);
+displayEventHandlerFcn_t *gameDisplayInit(const gameDataNode_t *p_node);
+void gameDisplayGames(SDL_Renderer *renderer);
+
 
 
 #endif /* GAME_INFO_H */
