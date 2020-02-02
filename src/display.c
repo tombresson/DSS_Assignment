@@ -43,6 +43,7 @@
 #include <SDL_ttf.h>
 
 // Project Includes
+#include "game_data_parser.h"
 
 // Module Includes
 #include "display/text.h"
@@ -51,9 +52,13 @@
 
 /* ***************************   Definitions   **************************** */
 
+#define DISPLAY_BACKGROUND_FILE "res/1.jpg"
+#define DISPLAY_LOADING_IMAGE_FILE "res/loading.png"
+#define DISPLAY_WINDOW_TITLE        "DSS Assignment"
+
 // Screen dimension constants
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+#define DISPLAY_SCREEN_WIDTH 1920
+#define DISPLAY_SCREEN_HEIGHT 1080
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define RMASK = 0xff000000;
@@ -76,7 +81,7 @@ const int SCREEN_HEIGHT = 1080;
 static bool init();
 static bool loadMedia();
 static void close();
-static void displayStartDisplayLoop(void);
+static void displayStartDisplay(void);
 static void displayShowGameData(void);
 
 SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren);
@@ -117,7 +122,7 @@ int display()
         }
         else
         {
-            displayStartDisplayLoop();
+            displayStartDisplay();
         }
     }
 
@@ -165,7 +170,7 @@ static bool init()
     if (success)
     {
         // Create window
-        g_window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        g_window = SDL_CreateWindow(DISPLAY_WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DISPLAY_SCREEN_WIDTH, DISPLAY_SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (g_window == NULL)
         {
             printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -177,7 +182,7 @@ static bool init()
             g_screen_surface = SDL_GetWindowSurface(g_window);
 
             // Create the renderer
-            g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED);
+            g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
             if (g_renderer == NULL)
             {
                 printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -194,17 +199,17 @@ static bool loadMedia()
     bool success = true;
 
     // Load splash image
-    g_background_surface = IMG_Load("res/1.jpg");
+    g_background_surface = IMG_Load(DISPLAY_BACKGROUND_FILE);
     if (g_background_surface == NULL)
     {
-        printf("Unable to load image %s! SDL Error: %s\n", "res/1.jpg", SDL_GetError());
+        printf("Unable to load image %s! SDL Error: %s\n", DISPLAY_BACKGROUND_FILE, SDL_GetError());
         success = false;
     }
 
-    g_loading_surface = IMG_Load("res/loading.png");
+    g_loading_surface = IMG_Load(DISPLAY_LOADING_IMAGE_FILE);
     if (g_loading_surface == NULL)
     {
-        printf("Unable to load image %s! SDL Error: %s\n", "res/loading.png", SDL_GetError());
+        printf("Unable to load image %s! SDL Error: %s\n", DISPLAY_LOADING_IMAGE_FILE, SDL_GetError());
         success = false;
     }
 
@@ -233,36 +238,75 @@ static void close()
     SDL_Quit();
 }
 
-static void displayStartDisplayLoop(void)
+static void displayStartDisplay(void)
 {
 
-    // Apply the image
+    // Apply the background and the loading images
     SDL_BlitSurface(g_background_surface, NULL, g_screen_surface, NULL);
     SDL_BlitSurface(g_loading_surface, NULL, g_screen_surface, NULL);
 
     // Update the surface
     SDL_UpdateWindowSurface(g_window);
-    SDL_Delay(3000);
-    // TODO: wait for the download? Do the download?
+
+    // Download the data
+    // TODO: make this a separate thread, so the SDL code can continue on and window stays responsive
+    //
+    // TODO: Take the URL in as a param
+    gameDataNode_t *p_game_list =
+        gameDataParserGatherData("http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
 
     // Done loading.
     SDL_BlitSurface(g_background_surface, NULL, g_screen_surface, NULL);
     SDL_UpdateWindowSurface(g_window);
-    SDL_Delay(1000);
 
-    // textObject_t text;
-    // memset(&text, 0, sizeof(textObject_t));
-    // text.font_size = 24;
-    // text.message = "Hello World";
-    //textDisplay(400, 200, g_renderer, &text);
 
-    gameDisplay(500, 300, g_renderer,NULL);
-
+    gameDisplayGames()
     SDL_RenderPresent(g_renderer);
-    SDL_Delay(5000);
 
     // // Display the game data
     // displayShowGameData();
+
+    // Start polling events
+    SDL_Event event;
+    bool exit = false;
+    while(!exit)
+    {
+        if(SDL_PollEvent(&event))
+        {
+            switch (event.type)
+            {
+            case SDL_QUIT:
+                exit = true;
+                break;
+
+            case SDL_KEYDOWN:
+                event.key.keysym
+
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+}
+
+static void displayHandleKeyPress(const gameDataNode_t *p_node, const SDL_Keysym key)
+{
+    switch (key.sym)
+    {
+        case SDLK_RIGHT:
+            break;
+
+        case SDLK_LEFT:
+            break;
+
+        case SDLK_q:
+            break;
+
+        default:
+            break;
+    }
 }
 
 static void displayShowGameData(void)
@@ -308,6 +352,8 @@ SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren)
     return texture;
 }
 
+
+
 /**
 * Draw an SDL_Texture to an SDL_Renderer at position x, y, with some desired
 * width and height
@@ -318,7 +364,6 @@ SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren)
 * @param w The width of the texture to draw
 * @param h The height of the texture to draw
 */
-
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h)
 {
     //Setup the destination rectangle to be at the position we want

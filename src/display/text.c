@@ -40,7 +40,7 @@
 
 // Library Includes
 #include <SDL.h>
-#include <SDL_TTF.h>
+#include <SDL_ttf.h>
 
 // Project Includes
 
@@ -55,23 +55,29 @@
 
 /* ***********************   Function Prototypes   ************************ */
 
-static SDL_Texture *textGetTexture(SDL_Renderer *renderer, int font_size, char *str, const SDL_Color *color);
+static SDL_Texture *textGetTexture(SDL_Renderer *renderer, int font_size, const char *str, const SDL_Color *color);
 
 /* ***********************   File Scope Variables   *********************** */
 
 /* *************************   Public  Functions   ************************ */
 
-textObject_t textCreateObj(const char *message, const int font_size, const int x, const int y)
+textObject_t textInitObj(const char *message, const int font_size, const int x, const int y)
 {
     textObject_t new_text_obj =
     {
         .message = message,
         .font_size = font_size,
         .rect.x = x,
-        .rect.y = y
+        .rect.y = y,
+        .texture = NULL
     };
 
     return new_text_obj;
+}
+
+void textDestroyObj(textObject_t *p_text_obj)
+{
+    SDL_DestroyTexture(p_text_obj->texture);
 }
 
 void textDisplay(int x, int y, SDL_Renderer *renderer, textObject_t *text_obj)
@@ -79,20 +85,23 @@ void textDisplay(int x, int y, SDL_Renderer *renderer, textObject_t *text_obj)
     text_obj->rect.x = x;
     text_obj->rect.y = y;
 
-    const SDL_Color white = {255,255,255,255};
-    SDL_Texture *text_texture = textGetTexture(renderer, text_obj->font_size, text_obj->message, &white);
-    // Set the rectangle to the proper height and width, based on the generated texture
-    SDL_QueryTexture(text_texture, NULL, NULL, &text_obj->rect.w, &text_obj->rect.h);
+    if(text_obj->texture == NULL)
+    {
+        const SDL_Color white = {255,255,255,255};
+        text_obj->texture = textGetTexture(renderer, text_obj->font_size, text_obj->message, &white);
+        // Set the rectangle to the proper height and width, based on the generated texture
+        SDL_QueryTexture(text_obj->texture, NULL, NULL, &text_obj->rect.w, &text_obj->rect.h);
+    }
 
-    SDL_RenderCopy(renderer, text_texture, NULL, &text_obj->rect);
+    SDL_RenderCopy(renderer, text_obj->texture, NULL, &text_obj->rect);
 }
 
 /* *************************   Private Functions   ************************ */
 
-static SDL_Texture *textGetTexture(SDL_Renderer *renderer, int font_size, char *str, const SDL_Color *color)
+static SDL_Texture *textGetTexture(SDL_Renderer *renderer, int font_size, const char *str, const SDL_Color *color)
 {
     // Load the font once and only once
-    // Does not support muliple fonts
+    // Does not support multiple fonts
     static TTF_Font *font = NULL;
     if(font == NULL)
     {

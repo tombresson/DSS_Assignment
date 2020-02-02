@@ -56,7 +56,7 @@
 
 /* ***********************   Function Prototypes   ************************ */
 
-static size_t curlLibStoreJsonData(void *ptr, size_t size, size_t nmemb, void *stream);
+static size_t curlLibStoreJsonDataCbk(void *ptr, size_t size, size_t nmemb, void *stream);
 static size_t curlLibStdOutCbk(void* ptr, size_t size, size_t nmemb, void* userdata);
 
 /* ***********************   File Scope Variables   *********************** */
@@ -71,17 +71,20 @@ void curlLibInit(void)
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
+// Initializes an HTTP buffer
 void curlLibBufferInit(httpDataBuffer_t *const p_buff)
 {
     memset(p_buff, 0, sizeof(httpDataBuffer_t));
 }
 
+// Makes an HTTP request and retuns a payload from that URI
+// Buffer is dynamically allocated and passed back to the caller.
 appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const url)
 {
     appErrors_t result = APPERR_OK;
     CURL *curl_handle = curl_easy_init();
 
-    if (curl_handle)
+    if (curl_handle != NULL)
     {
         CURLcode res;
         curl_easy_setopt(curl_handle, CURLOPT_URL, url);
@@ -130,7 +133,7 @@ appErrors_t curlLibGetData(httpDataBuffer_t *const p_buffer, const char *const u
                 {
                     // Setup the transfer, passing the buffer struct into the callback
                     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, p_buffer);
-                    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, curlLibStoreJsonData);
+                    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, curlLibStoreJsonDataCbk);
                     // Kick off the download with the write function in place to store the data
                     res = curl_easy_perform(curl_handle);
 
@@ -162,7 +165,7 @@ void curlLibFreeData(const httpDataBuffer_t *const p_buffer)
 
 // Write callback for libcUrl
 // Writes to a buffer struct handed though the userdata pointer
-static size_t curlLibStoreJsonData(void *ptr, size_t size, size_t nmemb, void *userdata)
+static size_t curlLibStoreJsonDataCbk(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
     httpDataBuffer_t *p_buffer = (httpDataBuffer_t *)userdata;
     const size_t spare_bytes = (p_buffer->size - (p_buffer->p_pos - p_buffer->p_buffer));
@@ -175,6 +178,7 @@ static size_t curlLibStoreJsonData(void *ptr, size_t size, size_t nmemb, void *u
     return num_bytes_to_copy;
 }
 
+// This callback just sends data to standard out
 static size_t curlLibStdOutCbk(void* ptr, size_t size, size_t nmemb, void* userdata)
 {
     printf("CURL - Response received:\n%s", (char *)ptr);

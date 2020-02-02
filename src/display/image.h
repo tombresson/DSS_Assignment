@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-//  text.h
+//  image.h
 //
-//  SDL Text Renderer
+//  SDL Image Renderer
 //
-//  Renders text using SDL
+//  Renders image using SDL
 //
 // The MIT License (MIT)
 //
@@ -30,8 +30,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef TEXT_H
-#define TEXT_H
+#ifndef IMAGE_H
+#define IMAGE_H
 
 /* ***************************    Includes     **************************** */
 
@@ -41,17 +41,17 @@
 
 typedef struct
 {
-    const char *message;
-    int font_size;
+    const uint8_t *buff;
+    const size_t buff_len;
     SDL_Texture *texture;
     SDL_Rect rect;
-}textObject_t;
+}imgObject_t;
 
 
 /* ***********************   Function Prototypes   ************************ */
 
-textObject_t textInitObj(const char *message, const int font_size, const int x, const int y);
-void textDestroyObj(textObject_t *p_text_obj);
-void textDisplay(int x, int y, SDL_Renderer *renderer, textObject_t *text_obj);
+imgObject_t imgInitObj(const char *message, const int font_size, const int x, const int y);
+void imgDestroyObj(imgObject_t *p_img_obj);
+void imgDisplay(int x, int y, SDL_Renderer *renderer, imgObject_t *text_obj);
 
-#endif /* TEXT_H */
+#endif /* IMAGE_H */

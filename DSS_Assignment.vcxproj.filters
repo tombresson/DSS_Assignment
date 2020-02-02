@@ -341,5 +341,8 @@
     <ClInclude Include="src\shared_data_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\game_data_parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -51,6 +51,7 @@ typedef struct
 
 /* ***********************   Function Prototypes   ************************ */
 
-void gameDisplay(int x, int y, SDL_Renderer *renderer, gameObject_t *game_obj);
+void gameDisplayGames(const gameDataNode_t *p_game_node);
+
 
 #endif /* GAME_INFO_H */

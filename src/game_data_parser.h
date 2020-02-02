@@ -46,9 +46,19 @@
 
 /* ****************************   Structures   **************************** */
 
+typedef struct gameDataNode gameDataNode_t;
+
+// Linked list node
+struct gameDataNode
+{
+    gameDataNode_t *next;
+    gameDataNode_t *prev;
+    gameData_t *p_data;
+};
+
 /* ***********************   Function Prototypes   ************************ */
 
-void gameDataParserGatherData(const char *const p_json_url);
+gameDataNode_t *gameDataParserGatherData(const char *const p_json_url);
 
 /** @} */
 

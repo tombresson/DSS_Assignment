@@ -44,6 +44,7 @@
 
 // Project Includes
 #include "utility.h"
+#include "game_data_parser.h"
 
 // Module Includes
 #include "text.h"
@@ -53,9 +54,25 @@
 
 #define NORMAL_FONT_SIZE        18
 
+
+#define VERTICAL_TEXT_OFFSET     (NORMAL_FONT_SIZE + 4)
+#define PIX_PER_CHAR    (NORMAL_FONT_SIZE - (NORMAL_FONT_SIZE / 4))
+
+// Horizontal spacing between games
+#define GAME_SPACING    200
+
+// NOTE: This size should be sync'd with the size of the downloaded image
+#define SELECTED_IMAGE_SIZE_W   480
+#define SELECTED_IMAGE_SIZE_H   270
+
+#define UNSELECTED_IMAGE_SIZE_W   270
+#define UNSELECTED_IMAGE_SIZE_H   154
+
 /* ****************************   Structures   **************************** */
 
 /* ***********************   Function Prototypes   ************************ */
+
+static void gameDisplayGame(int x, int y, SDL_Renderer *renderer, gameObject_t *game_obj);
 
 /* ***********************   File Scope Variables   *********************** */
 
@@ -73,35 +90,43 @@ static const gameData_t sample_data =
 
 /* *************************   Public  Functions   ************************ */
 
-void gameDisplay(int x, int y, SDL_Renderer *renderer, gameObject_t *game_obj)
+//
+void gameDisplayGames(const gameDataNode_t *p_game_node)
 {
-    // Create text elements
-    // textObject_t date = textCreateObj(game_obj->game_data->date_str, NORMAL_FONT_SIZE, x,y);
-    // textObject_t game_state = textCreateObj(game_obj->game_data->detailed_state_str, NORMAL_FONT_SIZE, x, y);
-    // textObject_t home_team_name = textCreateObj(game_obj->game_data->home_team_name_str, NORMAL_FONT_SIZE, x, y);
-    // textObject_t away_team_name = textCreateObj(game_obj->game_data->away_team_name_str, NORMAL_FONT_SIZE, x, y);
-    // textObject_t home_team_score = textCreateObj(game_obj->game_data->home_team_score_str, NORMAL_FONT_SIZE, x, y);
-    // textObject_t away_team_score = textCreateObj(game_obj->game_data->away_team_score_str, NORMAL_FONT_SIZE, x, y);
-    textObject_t date = textCreateObj(sample_data.date_str, NORMAL_FONT_SIZE, x,y);
-    textObject_t game_state = textCreateObj(sample_data.detailed_state_str, NORMAL_FONT_SIZE, x, y);
-    textObject_t home_team_name = textCreateObj(sample_data.home_team_name_str, NORMAL_FONT_SIZE, x, y);
-    textObject_t away_team_name = textCreateObj(sample_data.away_team_name_str, NORMAL_FONT_SIZE, x, y);
-    textObject_t home_team_score = textCreateObj(sample_data.home_team_score_str, NORMAL_FONT_SIZE, x, y);
-    textObject_t away_team_score = textCreateObj(sample_data.away_team_score_str, NORMAL_FONT_SIZE, x, y);
+    // Previous nodes will be displayed to the left
 
-    #define HOME_OFFSET     120
-    #define AWAY_OFFSET     140
-    #define PIX_PER_CHAR    (NORMAL_FONT_SIZE - (NORMAL_FONT_SIZE / 4))
+    // Current node displayed in the middle
+
+    // Next nodes will displayed to the right
+
+}
+
+/* *************************   Private Functions   ************************ */
+
+static void gameDisplayGame(const int x, const int y, SDL_Renderer *renderer, gameObject_t *game_obj)
+{
+    assert(game_obj != NULL && renderer != NULL);
+
+    // Display date above the image
+    textObject_t date = textInitObj(game_obj->game_data->date_str, NORMAL_FONT_SIZE, x,y);
+    textDisplay(x, y, renderer, &date);
+
+    // Display image
+
+
+    // Create other text elements
+    textObject_t game_state = textInitObj(game_obj->game_data->detailed_state_str, NORMAL_FONT_SIZE, x, y);
+    textObject_t home_team_name = textInitObj(game_obj->game_data->home_team_name_str, NORMAL_FONT_SIZE, x, y);
+    textObject_t away_team_name = textInitObj(game_obj->game_data->away_team_name_str, NORMAL_FONT_SIZE, x, y);
+    textObject_t home_team_score = textInitObj(game_obj->game_data->home_team_score_str, NORMAL_FONT_SIZE, x, y);
+    textObject_t away_team_score = textInitObj(game_obj->game_data->away_team_score_str, NORMAL_FONT_SIZE, x, y);
 
     int score_offset = (MAX(strlen(sample_data.home_team_name_str), strlen(sample_data.home_team_name_str)) * PIX_PER_CHAR);
 
     // Offset things in the y direction
-    textDisplay(x, y, renderer, &date);
     textDisplay(x, y + HOME_OFFSET, renderer, &home_team_name);
     textDisplay(x, y + AWAY_OFFSET, renderer, &away_team_name);
     textDisplay(x + score_offset, y + HOME_OFFSET, renderer, &home_team_score);
     textDisplay(x + score_offset, y + AWAY_OFFSET, renderer, &away_team_score);
     textDisplay(x, y + 100, renderer, &game_state);
 }
-
-/* *************************   Private Functions   ************************ */
