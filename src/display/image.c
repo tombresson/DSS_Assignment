@@ -38,6 +38,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 
 // Library Includes
 #include <SDL.h>
@@ -54,21 +55,37 @@
 
 /* ***********************   Function Prototypes   ************************ */
 
-static SDL_Texture *imgGetTexture(SDL_Renderer *renderer, int font_size, char *str, const SDL_Color *color);
+static SDL_Texture *imgGetTextureFromImgData(SDL_Renderer *renderer, const uint8_t *buff, const size_t buff_len);
+static SDL_Texture *imgGetTextureFromImgFile(SDL_Renderer* renderer, const char* file_name);
 
 /* ***********************   File Scope Variables   *********************** */
 
 /* *************************   Public  Functions   ************************ */
 
-imgObject_t imgInitObj(const int x, const int y, const uint8_t *buff, const size_t buff_len)
+imgObject_t imgInitObjBuff(const int x, const int y, const uint8_t *buff, const size_t buff_len)
 {
     imgObject_t new_img_obj =
     {
+        .type = E_IMGTYPE_BUFF,
         .rect.x = x,
         .rect.y = y,
         .texture = NULL,
         .buff = buff,
         .buff_len = buff_len
+    };
+
+    return new_img_obj;
+}
+
+imgObject_t imgInitObjFile(const int x, const int y, const char *file_name)
+{
+        imgObject_t new_img_obj =
+    {
+        .type = E_IMGTYPE_FILE,
+        .rect.x = x,
+        .rect.y = y,
+        .texture = NULL,
+        .file_name = file_name
     };
 
     return new_img_obj;
@@ -86,7 +103,22 @@ void imgDisplay(int x, int y, SDL_Renderer *renderer, imgObject_t *img_obj)
 
     if(img_obj->texture == NULL)
     {
-        img_obj->texture = imgGetTexture(renderer, img_obj->buff, img_obj->buff_len);
+        switch (img_obj->type)
+        {
+        case E_IMGTYPE_BUFF:
+            img_obj->texture = imgGetTextureFromImgData(renderer, img_obj->buff, img_obj->buff_len);
+            break;
+
+        case E_IMGTYPE_FILE:
+            img_obj->texture = imgGetTextureFromImgFile(renderer, img_obj->file_name);
+            break;
+
+        default:
+            // Type not supported
+            assert(false);
+            break;
+        }
+        SDL_QueryTexture(img_obj->texture, NULL, NULL, &img_obj->rect.w, &img_obj->rect.h);
     }
 
     SDL_RenderCopy(renderer, img_obj->texture, NULL, &img_obj->rect);
@@ -94,8 +126,13 @@ void imgDisplay(int x, int y, SDL_Renderer *renderer, imgObject_t *img_obj)
 
 /* *************************   Private Functions   ************************ */
 
+static SDL_Texture *imgGetTextureFromImgFile(SDL_Renderer *renderer, const char *file_name)
+{
+    return IMG_LoadTexture(renderer, file_name);
+}
+
 static SDL_Texture *imgGetTextureFromImgData(SDL_Renderer *renderer, const uint8_t *buff, const size_t buff_len)
 {
     // Create surface from data in buffer
-    return IMG_LoadTexture_RW(renderer, SDL_RWFromMem(buff,buff_len), 1);
+    return IMG_LoadTexture_RW(renderer, SDL_RWFromMem((void *)buff,(int)buff_len), 1);
 }

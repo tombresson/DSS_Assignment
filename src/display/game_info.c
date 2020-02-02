@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 
 // Library Includes
 #include <SDL.h>
@@ -48,6 +49,7 @@
 
 // Module Includes
 #include "text.h"
+#include "image.h"
 #include "game_info.h"
 
 /* ***************************   Definitions   **************************** */
@@ -55,8 +57,8 @@
 #define NORMAL_FONT_SIZE        18
 
 
-#define VERTICAL_TEXT_OFFSET     (NORMAL_FONT_SIZE + 4)
-#define PIX_PER_CHAR    (NORMAL_FONT_SIZE - (NORMAL_FONT_SIZE / 4))
+#define VERTICAL_TEXT_OFFSET    (NORMAL_FONT_SIZE + 4)
+#define PIX_PER_CHAR            (NORMAL_FONT_SIZE - (NORMAL_FONT_SIZE / 4))
 
 // Horizontal spacing between games
 #define GAME_SPACING    200
@@ -68,34 +70,82 @@
 #define UNSELECTED_IMAGE_SIZE_W   270
 #define UNSELECTED_IMAGE_SIZE_H   154
 
+
+
 /* ****************************   Structures   **************************** */
+
+typedef struct
+{
+    int pos_x;
+    int pos_y;
+    bool selected;
+    const gameData_t *game_data;
+}gameObject_t;
+
+
+typedef struct
+{
+    int pos_x;
+    int pos_y;
+    bool selected;
+    textObject_t date;
+    textObject_t game_state;
+    textObject_t home_team_name;
+    textObject_t away_team_name;
+    textObject_t home_team_score;
+    textObject_t away_team_score;
+    imgObject_t thumb;
+}gameDisplayData_t;
+
+
+typedef struct gameDisplayNode gameDisplayNode_t;
+
+// Linked list node
+struct gameDisplayNode
+{
+    gameDisplayNode_t *next;
+    gameDisplayNode_t *prev;
+    gameDisplayData_t *p_data;
+};
 
 /* ***********************   Function Prototypes   ************************ */
 
-static void gameDisplayGame(int x, int y, SDL_Renderer *renderer, gameObject_t *game_obj);
+static void gameDisplayGame(SDL_Renderer *renderer, const gameObject_t *game_obj);
+
+static void gameDataCreate(const gameObject_t *game_obj);
 
 /* ***********************   File Scope Variables   *********************** */
-
-// Just some sample data with a null image to display
-static const gameData_t sample_data =
-{
-    .date_str = "2018-12-31T11:59:59",
-    .home_team_name_str = "Chicaco White Sox",
-    .away_team_name_str = "Cleveland Indians",
-    .home_team_score_str = "77",
-    .away_team_score_str = "2",
-    .detailed_state_str = "FINAL",
-    .p_img_data = NULL
-};
 
 /* *************************   Public  Functions   ************************ */
 
 //
-void gameDisplayGames(const gameDataNode_t *p_game_node)
+void gameDisplayGames(const gameDataNode_t *p_game_node, SDL_Renderer *renderer)
 {
-    // Previous nodes will be displayed to the left
+    int width;
+    int height;
+    SDL_GetRendererOutputSize(renderer, &width, &height);
 
     // Current node displayed in the middle
+
+    static gameObject_t game;
+    static bool inited = false;
+    if(!inited)
+    {
+        int starting_x_coord = (width / 2) - (SELECTED_IMAGE_SIZE_W / 2);
+        int y_coord = (height / 2) - (SELECTED_IMAGE_SIZE_H / 2);
+        game = (gameObject_t){.game_data = p_game_node->p_data, .selected = false, .pos_x = starting_x_coord, .pos_y = y_coord};
+        gameDataCreate(&game);
+        inited = true;
+    }
+    else
+    {
+        game.pos_x +=5;
+    }
+
+
+    gameDisplayGame(renderer, &game);
+
+    // Previous nodes will be displayed to the left
 
     // Next nodes will displayed to the right
 
@@ -103,30 +153,57 @@ void gameDisplayGames(const gameDataNode_t *p_game_node)
 
 /* *************************   Private Functions   ************************ */
 
-static void gameDisplayGame(const int x, const int y, SDL_Renderer *renderer, gameObject_t *game_obj)
+static textObject_t date ;
+static textObject_t game_state ;
+static textObject_t home_team_name ;
+static textObject_t away_team_name ;
+static textObject_t home_team_score ;
+static textObject_t away_team_score ;
+static imgObject_t thumb;
+
+static void gameDisplayGame(SDL_Renderer *renderer, const gameObject_t *game_obj)
 {
     assert(game_obj != NULL && renderer != NULL);
 
+    int x = game_obj->pos_x;
+    int y = game_obj->pos_y;
+
     // Display date above the image
-    textObject_t date = textInitObj(game_obj->game_data->date_str, NORMAL_FONT_SIZE, x,y);
     textDisplay(x, y, renderer, &date);
+    y += (VERTICAL_TEXT_OFFSET);
 
     // Display image
+    imgDisplay(x, y, renderer, &thumb);
+
+    // Shift y by image size
+    y += SELECTED_IMAGE_SIZE_H;
 
 
-    // Create other text elements
-    textObject_t game_state = textInitObj(game_obj->game_data->detailed_state_str, NORMAL_FONT_SIZE, x, y);
-    textObject_t home_team_name = textInitObj(game_obj->game_data->home_team_name_str, NORMAL_FONT_SIZE, x, y);
-    textObject_t away_team_name = textInitObj(game_obj->game_data->away_team_name_str, NORMAL_FONT_SIZE, x, y);
-    textObject_t home_team_score = textInitObj(game_obj->game_data->home_team_score_str, NORMAL_FONT_SIZE, x, y);
-    textObject_t away_team_score = textInitObj(game_obj->game_data->away_team_score_str, NORMAL_FONT_SIZE, x, y);
 
-    int score_offset = (MAX(strlen(sample_data.home_team_name_str), strlen(sample_data.home_team_name_str)) * PIX_PER_CHAR);
+    int score_offset = (MAX(strlen(game_obj->game_data->home_team_name_str), strlen(game_obj->game_data->home_team_name_str)) * PIX_PER_CHAR);
 
     // Offset things in the y direction
-    textDisplay(x, y + HOME_OFFSET, renderer, &home_team_name);
-    textDisplay(x, y + AWAY_OFFSET, renderer, &away_team_name);
-    textDisplay(x + score_offset, y + HOME_OFFSET, renderer, &home_team_score);
-    textDisplay(x + score_offset, y + AWAY_OFFSET, renderer, &away_team_score);
-    textDisplay(x, y + 100, renderer, &game_state);
+    y += (VERTICAL_TEXT_OFFSET);
+    textDisplay(x, y, renderer, &home_team_name);
+    textDisplay(x + score_offset, y, renderer, &home_team_score);
+    y += (VERTICAL_TEXT_OFFSET);
+    textDisplay(x, y, renderer, &away_team_name);
+    textDisplay(x + score_offset, y, renderer, &away_team_score);
+    y += (VERTICAL_TEXT_OFFSET);
+    textDisplay(x, y, renderer, &game_state);
+}
+
+static void gameDataCreate(const gameObject_t *game_obj)
+{
+    int x = 0;
+    int y = 0;
+    date = textInitObj(game_obj->game_data->date_str, NORMAL_FONT_SIZE, x,y);
+
+    thumb = imgInitObjBuff(x, y, game_obj->game_data->p_img_data->p_buffer,  game_obj->game_data->p_img_data->content_length);
+    // Create other text elements
+    game_state = textInitObj(game_obj->game_data->detailed_state_str, NORMAL_FONT_SIZE, x, y);
+    home_team_name = textInitObj(game_obj->game_data->home_team_name_str, NORMAL_FONT_SIZE, x, y);
+    away_team_name = textInitObj(game_obj->game_data->away_team_name_str, NORMAL_FONT_SIZE, x, y);
+    home_team_score = textInitObj(game_obj->game_data->home_team_score_str, NORMAL_FONT_SIZE, x, y);
+    away_team_score = textInitObj(game_obj->game_data->away_team_score_str, NORMAL_FONT_SIZE, x, y);
 }

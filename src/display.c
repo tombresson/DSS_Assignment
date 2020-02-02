@@ -47,6 +47,7 @@
 
 // Module Includes
 #include "display/text.h"
+#include "display/image.h"
 #include "display/game_info.h"
 #include "display.h"
 
@@ -54,7 +55,7 @@
 
 #define DISPLAY_BACKGROUND_FILE "res/1.jpg"
 #define DISPLAY_LOADING_IMAGE_FILE "res/loading.png"
-#define DISPLAY_WINDOW_TITLE        "DSS Assignment"
+#define DISPLAY_WINDOW_TITLE "DSS Assignment"
 
 // Screen dimension constants
 #define DISPLAY_SCREEN_WIDTH 1920
@@ -256,12 +257,15 @@ static void displayStartDisplay(void)
         gameDataParserGatherData("http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
 
     // Done loading.
-    SDL_BlitSurface(g_background_surface, NULL, g_screen_surface, NULL);
-    SDL_UpdateWindowSurface(g_window);
+    // SDL_BlitSurface(g_background_surface, NULL, g_screen_surface, NULL);
+    // SDL_UpdateWindowSurface(g_window);
 
+    // // Render background
+    // imgObject_t background = imgInitObjFile(0,0,DISPLAY_BACKGROUND_FILE);
+    // imgDisplay(0,0,g_renderer, &background);
 
-    gameDisplayGames()
-    SDL_RenderPresent(g_renderer);
+    // gameDisplayGames(p_game_list, g_renderer);
+    // SDL_RenderPresent(g_renderer);
 
     // // Display the game data
     // displayShowGameData();
@@ -269,9 +273,15 @@ static void displayStartDisplay(void)
     // Start polling events
     SDL_Event event;
     bool exit = false;
-    while(!exit)
+    while (!exit)
     {
-        if(SDL_PollEvent(&event))
+        imgObject_t background = imgInitObjFile(0, 0, DISPLAY_BACKGROUND_FILE);
+        imgDisplay(0, 0, g_renderer, &background);
+
+        gameDisplayGames(p_game_list, g_renderer);
+        SDL_RenderPresent(g_renderer);
+
+        if (SDL_PollEvent(&event))
         {
             switch (event.type)
             {
@@ -280,7 +290,7 @@ static void displayStartDisplay(void)
                 break;
 
             case SDL_KEYDOWN:
-                event.key.keysym
+                //event.key.keysym
 
                 break;
 
@@ -289,23 +299,25 @@ static void displayStartDisplay(void)
             }
         }
     }
+
+    SDL_Delay(500);
 }
 
 static void displayHandleKeyPress(const gameDataNode_t *p_node, const SDL_Keysym key)
 {
     switch (key.sym)
     {
-        case SDLK_RIGHT:
-            break;
+    case SDLK_RIGHT:
+        break;
 
-        case SDLK_LEFT:
-            break;
+    case SDLK_LEFT:
+        break;
 
-        case SDLK_q:
-            break;
+    case SDLK_q:
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 }
 
@@ -351,8 +363,6 @@ SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren)
     }
     return texture;
 }
-
-
 
 /**
 * Draw an SDL_Texture to an SDL_Renderer at position x, y, with some desired

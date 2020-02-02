@@ -41,17 +41,9 @@
 
 /* ****************************   Structures   **************************** */
 
-typedef struct
-{
-    int pos_x;
-    int pos_y;
-    const gameData_t *game_data;
-}gameObject_t;
-
-
 /* ***********************   Function Prototypes   ************************ */
 
-void gameDisplayGames(const gameDataNode_t *p_game_node);
+void gameDisplayGames(const gameDataNode_t *p_game_node, SDL_Renderer *renderer);
 
 
 #endif /* GAME_INFO_H */

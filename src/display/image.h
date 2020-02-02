@@ -37,12 +37,29 @@
 
 /* ***************************   Definitions   **************************** */
 
+typedef enum
+{
+    E_IMGTYPE_NULL = 0,
+    E_IMGTYPE_FILE,
+    E_IMGTYPE_BUFF
+}imgObjType_t;
+
 /* ****************************   Structures   **************************** */
 
+// Image objects can be built either from a file name or a data buffer
 typedef struct
 {
-    const uint8_t *buff;
-    const size_t buff_len;
+    imgObjType_t type;
+    union
+    {
+        struct
+        {
+            const uint8_t *buff;
+            const size_t buff_len;
+
+        };
+        const char *file_name;
+    };
     SDL_Texture *texture;
     SDL_Rect rect;
 }imgObject_t;
@@ -50,8 +67,9 @@ typedef struct
 
 /* ***********************   Function Prototypes   ************************ */
 
-imgObject_t imgInitObj(const char *message, const int font_size, const int x, const int y);
+imgObject_t imgInitObjBuff(const int x, const int y, const uint8_t *buff, const size_t buff_len);
+imgObject_t imgInitObjFile(const int x, const int y, const char *file_name);
 void imgDestroyObj(imgObject_t *p_img_obj);
-void imgDisplay(int x, int y, SDL_Renderer *renderer, imgObject_t *text_obj);
+void imgDisplay(int x, int y, SDL_Renderer *renderer, imgObject_t *img_obj);
 
 #endif /* IMAGE_H */

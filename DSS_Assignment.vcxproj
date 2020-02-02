@@ -22,6 +22,7 @@
     <ClCompile Include="src\curl_lib.c" />
     <ClCompile Include="src\display.c" />
     <ClCompile Include="src\display\game_info.c" />
+    <ClCompile Include="src\display\image.c" />
     <ClCompile Include="src\display\text.c" />
     <ClCompile Include="src\enum_label.c" />
     <ClCompile Include="src\game_data_parser.c" />
@@ -30,6 +31,7 @@
     <ClCompile Include="src\main.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\display\image.h" />
     <ClInclude Include="src\enum_label.h" />
     <ClInclude Include="src\game_data_parser.h" />
     <ClInclude Include="src\inc\curl\curl.h" />

@@ -48,6 +48,9 @@
     <ClCompile Include="src\display\game_info.c">
       <Filter>Source Files\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\display\image.c">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\inc\curl\curlver.h">
@@ -342,6 +345,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game_data_parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\display\image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
