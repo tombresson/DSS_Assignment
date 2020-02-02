@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 
 // Library Includes
 #include <SDL.h>
@@ -61,27 +62,38 @@ static SDL_Texture *textGetTexture(SDL_Renderer *renderer, int font_size, const 
 
 /* *************************   Public  Functions   ************************ */
 
-textObject_t textInitObj(const char *message, const int font_size, const int x, const int y)
+drawableObj_t textInitObj(const char *message, const int font_size, const int x, const int y)
 {
-    textObject_t new_text_obj =
+    drawableObj_t new_obj =
     {
-        .message = message,
-        .font_size = font_size,
-        .rect.x = x,
-        .rect.y = y,
-        .texture = NULL
+        // Assign type and functions
+        .type = E_DRAWABLE_TEXT,
+        .draw = textDisplay,
+
+        .text =
+        {
+            .message = message,
+            .font_size = font_size,
+            .rect.x = x,
+            .rect.y = y,
+            .texture = NULL,
+        },
     };
 
-    return new_text_obj;
+    return new_obj;
 }
 
-void textDestroyObj(textObject_t *p_text_obj)
+void textDestroyObj(drawableObj_t *p_text_obj)
 {
-    SDL_DestroyTexture(p_text_obj->texture);
+    assert(p_text_obj->type == E_DRAWABLE_TEXT);
+    SDL_DestroyTexture(p_text_obj->text.texture);
 }
 
-void textDisplay(int x, int y, SDL_Renderer *renderer, textObject_t *text_obj)
+void textDisplay(drawableObj_t *obj, int x, int y, SDL_Renderer *renderer)
 {
+    assert(obj->type == E_DRAWABLE_TEXT);
+
+    textObject_t *text_obj = &obj->text;
     text_obj->rect.x = x;
     text_obj->rect.y = y;
 

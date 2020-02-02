@@ -30,7 +30,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-
 /* ***************************    Includes     **************************** */
 
 // Standard Includes
@@ -56,52 +55,70 @@
 /* ***********************   Function Prototypes   ************************ */
 
 static SDL_Texture *imgGetTextureFromImgData(SDL_Renderer *renderer, const uint8_t *buff, const size_t buff_len);
-static SDL_Texture *imgGetTextureFromImgFile(SDL_Renderer* renderer, const char* file_name);
+static SDL_Texture *imgGetTextureFromImgFile(SDL_Renderer *renderer, const char *file_name);
 
 /* ***********************   File Scope Variables   *********************** */
 
 /* *************************   Public  Functions   ************************ */
 
-imgObject_t imgInitObjBuff(const int x, const int y, const uint8_t *buff, const size_t buff_len)
+drawableObj_t imgInitObjBuff(const int x, const int y, const uint8_t *buff, const size_t buff_len)
 {
-    imgObject_t new_img_obj =
+    drawableObj_t new_obj =
     {
-        .type = E_IMGTYPE_BUFF,
-        .rect.x = x,
-        .rect.y = y,
-        .texture = NULL,
-        .buff = buff,
-        .buff_len = buff_len
+        // Assign type and functions
+        .type = E_DRAWABLE_IMG,
+        .draw = imgDisplay,
+
+        .img =
+        {
+            .type = E_IMGTYPE_BUFF,
+            .rect.x = x,
+            .rect.y = y,
+            .texture = NULL,
+            .buff = buff,
+            .buff_len = buff_len
+        }
     };
 
-    return new_img_obj;
+    return new_obj;
 }
 
-imgObject_t imgInitObjFile(const int x, const int y, const char *file_name)
+drawableObj_t imgInitObjFile(const int x, const int y, const char *file_name)
 {
-        imgObject_t new_img_obj =
+    drawableObj_t new_obj =
     {
-        .type = E_IMGTYPE_FILE,
-        .rect.x = x,
-        .rect.y = y,
-        .texture = NULL,
-        .file_name = file_name
+        // Assign type and functions
+        .type = E_DRAWABLE_IMG,
+        .draw = imgDisplay,
+
+        .img =
+        {
+            .type = E_IMGTYPE_FILE,
+            .rect.x = x,
+            .rect.y = y,
+            .texture = NULL,
+            .file_name = file_name
+        }
     };
 
-    return new_img_obj;
+    return new_obj;
 }
 
-void imgDestroyObj(imgObject_t *p_img_obj)
+void imgDestroyObj(drawableObj_t *p_img_obj)
 {
-    SDL_DestroyTexture(p_img_obj->texture);
+    assert(p_img_obj->type == E_DRAWABLE_IMG);
+    SDL_DestroyTexture(p_img_obj->img.texture);
 }
 
-void imgDisplay(int x, int y, SDL_Renderer *renderer, imgObject_t *img_obj)
+void imgDisplay(drawableObj_t *obj, int x, int y, SDL_Renderer *renderer)
 {
+    assert(obj->type == E_DRAWABLE_IMG);
+
+    imgObject_t *img_obj = &obj->img;
     img_obj->rect.x = x;
     img_obj->rect.y = y;
 
-    if(img_obj->texture == NULL)
+    if (img_obj->texture == NULL)
     {
         switch (img_obj->type)
         {
@@ -134,5 +151,5 @@ static SDL_Texture *imgGetTextureFromImgFile(SDL_Renderer *renderer, const char 
 static SDL_Texture *imgGetTextureFromImgData(SDL_Renderer *renderer, const uint8_t *buff, const size_t buff_len)
 {
     // Create surface from data in buffer
-    return IMG_LoadTexture_RW(renderer, SDL_RWFromMem((void *)buff,(int)buff_len), 1);
+    return IMG_LoadTexture_RW(renderer, SDL_RWFromMem((void *)buff, (int)buff_len), 1);
 }

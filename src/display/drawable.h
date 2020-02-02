@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-//  image.h
+//  drawable.h
 //
-//  SDL Image Renderer
+//  Drawable Element
 //
-//  Renders image using SDL
+//  Contains datastuctures for drawable elements.
 //
 // The MIT License (MIT)
 //
@@ -30,23 +30,69 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef DRAWABLE_H
+#define DRAWABLE_H
 
 /* ***************************    Includes     **************************** */
 
-// Defines the drawable datatypes
-#include "drawable.h"
-
 /* ***************************   Definitions   **************************** */
+
+typedef enum
+{
+    E_DRAWABLE_INVALID = 0,
+    E_DRAWABLE_TEXT,
+    E_DRAWABLE_IMG
+} drawableType_t;
+
+typedef enum
+{
+    E_IMGTYPE_NULL = 0,
+    E_IMGTYPE_FILE,
+    E_IMGTYPE_BUFF
+} imgObjType_t;
+
+typedef struct drawableObj drawableObj_t;
+
+typedef void (drawFcn_t)(drawableObj_t* obj, int x, int y, SDL_Renderer *renderer);
 
 /* ****************************   Structures   **************************** */
 
+typedef struct
+{
+    const char *message;
+    int font_size;
+    SDL_Texture *texture;
+    SDL_Rect rect;
+} textObject_t;
+
+// Image objects can be built either from a file name or a data buffer
+typedef struct 
+{
+    imgObjType_t type;
+    union {
+        struct
+        {
+            const uint8_t *buff;
+            size_t buff_len;
+        };
+        const char *file_name;
+    };
+    SDL_Texture *texture;
+    SDL_Rect rect;
+} imgObject_t;
+
+
+
+struct drawableObj
+{
+    drawableType_t type;
+    union {
+        imgObject_t img;
+        textObject_t text;
+    };
+    drawFcn_t *draw;
+};
+
 /* ***********************   Function Prototypes   ************************ */
 
-drawableObj_t imgInitObjBuff(const int x, const int y, const uint8_t *buff, const size_t buff_len);
-drawableObj_t imgInitObjFile(const int x, const int y, const char *file_name);
-void imgDestroyObj(drawableObj_t *p_img_obj);
-void imgDisplay(drawableObj_t *obj, int x, int y, SDL_Renderer *renderer);
-
-#endif /* IMAGE_H */
+#endif /* DRAWABLE_H */

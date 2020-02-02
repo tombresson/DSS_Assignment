@@ -88,6 +88,8 @@ static void displayShowGameData(void);
 SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
 
+static void displayHandleKeyPress(const SDL_Keysym key, bool *exit);
+
 /* ***********************   File Scope Variables   *********************** */
 
 // The window we'll be rendering to
@@ -275,8 +277,8 @@ static void displayStartDisplay(void)
     bool exit = false;
     while (!exit)
     {
-        imgObject_t background = imgInitObjFile(0, 0, DISPLAY_BACKGROUND_FILE);
-        imgDisplay(0, 0, g_renderer, &background);
+        drawableObj_t background = imgInitObjFile(0, 0, DISPLAY_BACKGROUND_FILE);
+        background.draw(&background, 0, 0, g_renderer);
 
         gameDisplayGames(p_game_list, g_renderer);
         SDL_RenderPresent(g_renderer);
@@ -290,8 +292,7 @@ static void displayStartDisplay(void)
                 break;
 
             case SDL_KEYDOWN:
-                //event.key.keysym
-
+                displayHandleKeyPress(event.key.keysym, &exit);
                 break;
 
             default:
@@ -303,84 +304,88 @@ static void displayStartDisplay(void)
     SDL_Delay(500);
 }
 
-static void displayHandleKeyPress(const gameDataNode_t *p_node, const SDL_Keysym key)
+
+static void displayHandleKeyPress(const SDL_Keysym key, bool *exit)
 {
     switch (key.sym)
     {
-    case SDLK_RIGHT:
-        break;
+    // case SDLK_RIGHT:
+    //     break;
 
-    case SDLK_LEFT:
-        break;
+    // case SDLK_LEFT:
+    //     break;
 
     case SDLK_q:
+        *exit = true;
         break;
 
     default:
+        // TODO: Pass it off to other functions to process keys
+
         break;
     }
 }
 
-static void displayShowGameData(void)
-{
+// static void displayShowGameData(void)
+// {
 
-    // /* SDL interprets each pixel as a 32-bit number, so our masks must depend
-    //    on the endianness (byte order) of the machine */
-    // SDL_Surface *cut_base_surface = SDL_CreateRGBSurface(0, 480, 270, 32,
-    //                                RMASK, GMASK, BMASK, AMASK);
+//     // /* SDL interprets each pixel as a 32-bit number, so our masks must depend
+//     //    on the endianness (byte order) of the machine */
+//     // SDL_Surface *cut_base_surface = SDL_CreateRGBSurface(0, 480, 270, 32,
+//     //                                RMASK, GMASK, BMASK, AMASK);
 
-    // SDL_Surface* cut_surface = IMG_Load("cut.jpg");
-    // assert(cut_surface != NULL);
+//     // SDL_Surface* cut_surface = IMG_Load("cut.jpg");
+//     // assert(cut_surface != NULL);
 
-    // SDL_Rect srcrect;
-    // SDL_Rect dstrect;
+//     // SDL_Rect srcrect;
+//     // SDL_Rect dstrect;
 
-    // srcrect.x = 0;
-    // srcrect.y = 0;
-    // srcrect.w = 32;
-    // srcrect.h = 32;
-    // dstrect.x = 640/2;
-    // dstrect.y = 480/2;
-    // dstrect.w = 32;
-    // dstrect.h = 32;
+//     // srcrect.x = 0;
+//     // srcrect.y = 0;
+//     // srcrect.w = 32;
+//     // srcrect.h = 32;
+//     // dstrect.x = 640/2;
+//     // dstrect.y = 480/2;
+//     // dstrect.w = 32;
+//     // dstrect.h = 32;
 
-    SDL_RenderClear(g_renderer);
-    // SDL_RenderDrawRect(g_renderer, &srcrect);
-    // SDL_Delay(1000);
-    //SDL_Texture* cut_texture = loadTextureFile("cut.jpg", g_renderer);
-    SDL_Texture *cut_texture = loadTextureFile("cut.jpg", g_renderer);
-    renderTexture(cut_texture, g_renderer, 900, 500, THUMB_W, THUMB_H);
-    SDL_RenderPresent(g_renderer);
-    SDL_Delay(5000);
-}
+//     SDL_RenderClear(g_renderer);
+//     // SDL_RenderDrawRect(g_renderer, &srcrect);
+//     // SDL_Delay(1000);
+//     //SDL_Texture* cut_texture = loadTextureFile("cut.jpg", g_renderer);
+//     SDL_Texture *cut_texture = loadTextureFile("cut.jpg", g_renderer);
+//     renderTexture(cut_texture, g_renderer, 900, 500, THUMB_W, THUMB_H);
+//     SDL_RenderPresent(g_renderer);
+//     SDL_Delay(5000);
+// }
 
-SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren)
-{
-    SDL_Texture *texture = IMG_LoadTexture(ren, file);
-    if (texture == NULL)
-    {
-        printf("LoadTexture Error");
-    }
-    return texture;
-}
+// SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren)
+// {
+//     SDL_Texture *texture = IMG_LoadTexture(ren, file);
+//     if (texture == NULL)
+//     {
+//         printf("LoadTexture Error");
+//     }
+//     return texture;
+// }
 
-/**
-* Draw an SDL_Texture to an SDL_Renderer at position x, y, with some desired
-* width and height
-* @param tex The source texture we want to draw
-* @param ren The renderer we want to draw to
-* @param x The x coordinate to draw to
-* @param y The y coordinate to draw to
-* @param w The width of the texture to draw
-* @param h The height of the texture to draw
-*/
-void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h)
-{
-    //Setup the destination rectangle to be at the position we want
-    SDL_Rect dst;
-    dst.x = x;
-    dst.y = y;
-    dst.w = w;
-    dst.h = h;
-    SDL_RenderCopy(ren, tex, NULL, &dst);
-}
+// /**
+// * Draw an SDL_Texture to an SDL_Renderer at position x, y, with some desired
+// * width and height
+// * @param tex The source texture we want to draw
+// * @param ren The renderer we want to draw to
+// * @param x The x coordinate to draw to
+// * @param y The y coordinate to draw to
+// * @param w The width of the texture to draw
+// * @param h The height of the texture to draw
+// */
+// void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h)
+// {
+//     //Setup the destination rectangle to be at the position we want
+//     SDL_Rect dst;
+//     dst.x = x;
+//     dst.y = y;
+//     dst.w = w;
+//     dst.h = h;
+//     SDL_RenderCopy(ren, tex, NULL, &dst);
+// }

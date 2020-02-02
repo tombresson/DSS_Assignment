@@ -35,23 +35,17 @@
 
 /* ***************************    Includes     **************************** */
 
+// Defines the drawable datatypes
+#include "drawable.h"
+
 /* ***************************   Definitions   **************************** */
 
 /* ****************************   Structures   **************************** */
 
-typedef struct
-{
-    const char *message;
-    int font_size;
-    SDL_Texture *texture;
-    SDL_Rect rect;
-}textObject_t;
-
-
 /* ***********************   Function Prototypes   ************************ */
 
-textObject_t textInitObj(const char *message, const int font_size, const int x, const int y);
-void textDestroyObj(textObject_t *p_text_obj);
-void textDisplay(int x, int y, SDL_Renderer *renderer, textObject_t *text_obj);
+drawableObj_t textInitObj(const char *message, const int font_size, const int x, const int y);
+void textDestroyObj(drawableObj_t *p_text_obj);
+void textDisplay(drawableObj_t *obj, int x, int y, SDL_Renderer *renderer);
 
 #endif /* TEXT_H */
