@@ -127,7 +127,7 @@ static gameDisplayNode_t *g_game_object_list = NULL;
 displayEventHandlerFcn_t *gameDisplayInit(const gameDataNode_t *p_node)
 {
     // TODO: This is a cop-out. This should function should destroy the current list and recreate it.
-    // TODO: Time pending, come back and fix this.
+    // TODO: Time permitting, come back and fix this.
     assert(g_game_object_list == NULL);
 
     g_game_object_list = gameDisplayObjListCreate(p_node);
@@ -300,6 +300,12 @@ static void gameDisplayObjListDestroy(const gameDisplayNode_t *p_node)
     }
 }
 
+// Displays a game on the screen, based on a gameDisplayObj_t
+// TODO: I think this could be streamlined a bit. All of the y offsets are constant
+// TODO: so it would be possible to define a const table to build up an array of drawableObj_t
+// TODO: types and iterate through to "draw a game". The only seemingly tricky part is the x
+// TODO: offset for the scores, which is dynamic. Possibly a "getXOffset" function that could
+// TODO: recognize the element and return the proper x offset.
 static void gameDisplayGame(SDL_Renderer *renderer, gameDisplayObj_t *game)
 {
     assert(game != NULL && renderer != NULL);

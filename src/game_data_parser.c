@@ -82,6 +82,8 @@ static gameDataNode_t *gameDataDeserializeGame(const gameDataObj_t *p_game_data_
 
 /* ***********************   File Scope Variables   *********************** */
 
+// Table of JSON related data to be parsed out of the JSON data pulled from the endpoint
+// NOTE: If the JSON format of objects in the "Games" array change, this would have to be changed as well.
 const jsonKeyValue_t g_list_of_game_obj_values[] =
     {
         {.key_str = "gameDate",
@@ -286,8 +288,6 @@ static int gameDataFindArray(const jsmnTokenizationData_t *const p_tok_data, con
         }
     }
 
-    // TODO: with a matching token, it's worthwhile to return the size of the array (size attrib in the token data)
-
     return (matching_token_found ? token_idx : -1);
 }
 
@@ -301,7 +301,7 @@ static gameDataNode_t *gameDataDeserializeGames(const int game_array_idx, const 
     // Declare pointer that will point to the linked list
     gameDataNode_t *current_node = NULL;
 
-    // TODO: Iterate through all the games
+    // Iterate through all the games
     int next_game_tok_idx = (game_array_idx + 1);
     for (int idx = 0; idx < num_games; idx++)
     {
