@@ -1,40 +1,34 @@
-/*****************************************************************************
- * @file    game_data_parser.c
- * @brief   Source code .c file for Game Data Parser module
- * @date    2020-JAN-29
- *
- * @note <insert notes>
- *
- * @ingroup game_data_parser
- *
- * The MIT License (MIT)
- *
- * Copyright (c) 2020, Thomas Bresson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
-*****************************************************************************/
-
-/**
- * @addtogroup game_data_parser
- * @{
- */
+//////////////////////////////////////////////////////////////////////////////
+//
+//  game_data_parser.c
+//
+//  Game Data Parser
+//
+//  Module description in game_data_parser.h
+//
+// The MIT License (MIT)
+//
+// Copyright (c) 2020, Thomas Bresson
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+//////////////////////////////////////////////////////////////////////////////
 
 /* ***************************    Includes     **************************** */
 
@@ -166,7 +160,7 @@ gameDataNode_t *gameDataParserGatherData(const char *const p_json_url)
 
 // Free the list of game nodes, starting with the first
 // WARN: The first node must be passed into the function
-void gameDataParserFreeGameList(gameDataNode_t *p_list)
+void gameDataParserGameListDestroy(gameDataNode_t *p_list)
 {
     // Not allowed to start freeing the list anywhere except the first node!
     assert(p_list->prev == NULL);
@@ -177,20 +171,20 @@ void gameDataParserFreeGameList(gameDataNode_t *p_list)
     while(p_current_node != NULL)
     {
         // Free the image data first
-        curlLibFreeData(p_list->p_data->p_img_data);
+        curlLibFreeData(p_current_node->p_data->p_img_data);
 
         // Free all the members of the game data
-        free(p_list->p_data->home_team_name_str);
-        free(p_list->p_data->away_team_name_str);
-        free(p_list->p_data->detailed_state_str);
-        free(p_list->p_data->home_team_score_str);
-        free(p_list->p_data->away_team_score_str);
+        free(p_current_node->p_data->home_team_name_str);
+        free(p_current_node->p_data->away_team_name_str);
+        free(p_current_node->p_data->detailed_state_str);
+        free(p_current_node->p_data->home_team_score_str);
+        free(p_current_node->p_data->away_team_score_str);
 
         // Free the game data struct
-        free(p_list->p_data);
+        free(p_current_node->p_data);
 
         // Save the next node for traversal
-        gameDataNode_t* p_next_node = p_list->next;
+        gameDataNode_t* p_next_node = p_current_node->next;
 
         // Free the linked list node
         free(p_current_node);

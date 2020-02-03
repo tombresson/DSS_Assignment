@@ -80,14 +80,9 @@
 
 /* ***********************   Function Prototypes   ************************ */
 static bool init();
-static bool loadMedia();
 static void close();
 static void displayStartDisplay(void);
 static void displayShowGameData(void);
-
-SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren);
-void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
-
 static void displayHandleKeyPress(const SDL_Keysym key, bool* exit);
 
 /* ***********************   File Scope Variables   *********************** */
@@ -101,11 +96,6 @@ SDL_Renderer *g_renderer = NULL;
 // The surface contained by the window
 SDL_Surface *g_screen_surface = NULL;
 
-// The image we will load and show on the screen
-SDL_Surface *g_background_surface = NULL;
-SDL_Surface *g_loading_surface = NULL;
-
-TTF_Font *g_game_display_font = NULL;
 
 /* *************************   Public  Functions   ************************ */
 
@@ -118,15 +108,7 @@ int display()
     }
     else
     {
-        // Load media
-        if (!loadMedia())
-        {
-            printf("Failed to load media!\n");
-        }
-        else
-        {
-            displayStartDisplay();
-        }
+        displayStartDisplay();
     }
 
     // Free resources and close SDL
@@ -196,37 +178,8 @@ static bool init()
     return success;
 }
 
-static bool loadMedia()
-{
-    // Loading success flag
-    bool success = true;
-
-    // Load splash image
-    g_background_surface = IMG_Load(DISPLAY_BACKGROUND_FILE);
-    if (g_background_surface == NULL)
-    {
-        printf("Unable to load image %s! SDL Error: %s\n", DISPLAY_BACKGROUND_FILE, SDL_GetError());
-        success = false;
-    }
-
-    g_loading_surface = IMG_Load(DISPLAY_LOADING_IMAGE_FILE);
-    if (g_loading_surface == NULL)
-    {
-        printf("Unable to load image %s! SDL Error: %s\n", DISPLAY_LOADING_IMAGE_FILE, SDL_GetError());
-        success = false;
-    }
-
-    return success;
-}
-
 static void close()
 {
-    // Deallocate surface
-    SDL_FreeSurface(g_background_surface);
-    g_background_surface = NULL;
-    SDL_FreeSurface(g_loading_surface);
-    g_loading_surface = NULL;
-
     // Destroy window
     SDL_DestroyRenderer(g_renderer);
     g_window = NULL;
@@ -243,13 +196,12 @@ static void close()
 
 static void displayStartDisplay(void)
 {
-
-    // Apply the background and the loading images
-    SDL_BlitSurface(g_background_surface, NULL, g_screen_surface, NULL);
-    SDL_BlitSurface(g_loading_surface, NULL, g_screen_surface, NULL);
-
-    // Update the surface
-    SDL_UpdateWindowSurface(g_window);
+    SDL_RenderClear(g_renderer);
+    drawableObj_t background = imgInitObjFile(0, 0, DISPLAY_BACKGROUND_FILE);
+    drawableObj_t loading = imgInitObjFile(0, 0, DISPLAY_LOADING_IMAGE_FILE);
+    background.draw(&background, 0, 0, 0, 0, g_renderer);
+    loading.draw(&loading, 0, 0, 0, 0, g_renderer);
+    SDL_RenderPresent(g_renderer);
 
     // Download the data
     // TODO: make this a separate thread, so the SDL code can continue on and window stays responsive
@@ -258,20 +210,12 @@ static void displayStartDisplay(void)
     gameDataNode_t *p_game_list =
         gameDataParserGatherData("http://statsapi.mlb.com/api/v1/schedule?hydrate=game(content(editorial(recap))),decisions&date=2018-06-10&sportId=1");
 
-    // Done loading
-
+    // Done loading, init the game list and hold onto the event handler
     displayEventHandlerFcn_t *gameDispEvntHandler = gameDisplayInit(p_game_list);
-
-
-
-
-
-    // TODO: No longer need the game list, so it can be free'd
 
     // Start polling events
     SDL_Event event;
     bool exit = false;
-    drawableObj_t background = imgInitObjFile(0, 0, DISPLAY_BACKGROUND_FILE);
     while (!exit)
     {
         background.draw(&background, 0, 0, 0, 0, g_renderer);
@@ -285,6 +229,8 @@ static void displayStartDisplay(void)
             {
             case SDL_QUIT:
                 exit = true;
+                // No longer need the game list, so it can be free'd
+                gameDataParserGameListDestroy(p_game_list);
                 break;
 
             case SDL_KEYDOWN:
@@ -318,67 +264,3 @@ static void displayHandleKeyPress(const SDL_Keysym key, bool *exit)
         break;
     }
 }
-
-// static void displayShowGameData(void)
-// {
-
-//     // /* SDL interprets each pixel as a 32-bit number, so our masks must depend
-//     //    on the endianness (byte order) of the machine */
-//     // SDL_Surface *cut_base_surface = SDL_CreateRGBSurface(0, 480, 270, 32,
-//     //                                RMASK, GMASK, BMASK, AMASK);
-
-//     // SDL_Surface* cut_surface = IMG_Load("cut.jpg");
-//     // assert(cut_surface != NULL);
-
-//     // SDL_Rect srcrect;
-//     // SDL_Rect dstrect;
-
-//     // srcrect.x = 0;
-//     // srcrect.y = 0;
-//     // srcrect.w = 32;
-//     // srcrect.h = 32;
-//     // dstrect.x = 640/2;
-//     // dstrect.y = 480/2;
-//     // dstrect.w = 32;
-//     // dstrect.h = 32;
-
-//     SDL_RenderClear(g_renderer);
-//     // SDL_RenderDrawRect(g_renderer, &srcrect);
-//     // SDL_Delay(1000);
-//     //SDL_Texture* cut_texture = loadTextureFile("cut.jpg", g_renderer);
-//     SDL_Texture *cut_texture = loadTextureFile("cut.jpg", g_renderer);
-//     renderTexture(cut_texture, g_renderer, 900, 500, THUMB_W, THUMB_H);
-//     SDL_RenderPresent(g_renderer);
-//     SDL_Delay(5000);
-// }
-
-// SDL_Texture *loadTextureFile(char *file, SDL_Renderer *ren)
-// {
-//     SDL_Texture *texture = IMG_LoadTexture(ren, file);
-//     if (texture == NULL)
-//     {
-//         printf("LoadTexture Error");
-//     }
-//     return texture;
-// }
-
-// /**
-// * Draw an SDL_Texture to an SDL_Renderer at position x, y, with some desired
-// * width and height
-// * @param tex The source texture we want to draw
-// * @param ren The renderer we want to draw to
-// * @param x The x coordinate to draw to
-// * @param y The y coordinate to draw to
-// * @param w The width of the texture to draw
-// * @param h The height of the texture to draw
-// */
-// void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h)
-// {
-//     //Setup the destination rectangle to be at the position we want
-//     SDL_Rect dst;
-//     dst.x = x;
-//     dst.y = y;
-//     dst.w = w;
-//     dst.h = h;
-//     SDL_RenderCopy(ren, tex, NULL, &dst);
-// }

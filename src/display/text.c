@@ -125,7 +125,7 @@ static SDL_Texture *textGetTexture(SDL_Renderer *renderer, int font_size, const 
     if(font == NULL)
     {
         // This can leak if called more than once, and PROBABLY should be cleaned up after
-        font = TTF_OpenFont(FONT_FILE,18);
+        font = TTF_OpenFont(FONT_FILE,font_size);
         if (font == NULL)
         {
             printf("Unable to load font %s! SDL Error: %s\n", FONT_FILE, TTF_GetError());

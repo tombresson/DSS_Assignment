@@ -55,15 +55,17 @@
 
 /* ***************************   Definitions   **************************** */
 
-#define NORMAL_FONT_SIZE 18
+#define NORMAL_FONT_SIZE 36
 
 #define VERTICAL_TEXT_OFFSET (NORMAL_FONT_SIZE + 4)
 #define PIX_PER_CHAR (NORMAL_FONT_SIZE - (NORMAL_FONT_SIZE / 4))
+#define VERTICAL_BUFFER_AROUND_IMG      20
 
 // Horizontal spacing between games
 #define GAME_SPACING 20
 
 // NOTE: This size should be sync'd with the size of the downloaded image
+// NOTE: If it is out of sync, either upscaled or downscaled
 #define SELECTED_IMAGE_SIZE_W 480
 #define SELECTED_IMAGE_SIZE_H 270
 
@@ -284,9 +286,17 @@ static gameDisplayNode_t *gameDisplayObjListCreate(const gameDataNode_t *p_node)
     return p_list;
 }
 
+// Destroys the list of Game Display Objects
 static void gameDisplayObjListDestroy(const gameDisplayNode_t *p_node)
 {
-    // TODO: implement destroy for list
+    const gameDisplayNode_t *p_current_node = p_node;
+    while(p_current_node != NULL)
+    {
+        gameDisplayObjDestroy(p_current_node->p_data);
+        const gameDisplayNode_t *p_next_node = p_current_node->next;
+        free(p_current_node);
+        p_current_node = p_next_node;
+    }
 }
 
 static void gameDisplayGame(SDL_Renderer *renderer, gameDisplayObj_t *game)
@@ -302,20 +312,17 @@ static void gameDisplayGame(SDL_Renderer *renderer, gameDisplayObj_t *game)
         game->thumb.draw(&game->thumb, x, y, SELECTED_IMAGE_SIZE_W, SELECTED_IMAGE_SIZE_H, renderer);
 
         // Display date above the image
-        game->date.draw(&game->date, x, (y - VERTICAL_TEXT_OFFSET), 0, 0, renderer);
+        game->date.draw(&game->date, x, (y - VERTICAL_TEXT_OFFSET - VERTICAL_BUFFER_AROUND_IMG), 0, 0, renderer);
 
-        y += SELECTED_IMAGE_SIZE_H;
-        // Shift y by image size
+        // Shift y by image size plus buffer
+        y += SELECTED_IMAGE_SIZE_H + VERTICAL_BUFFER_AROUND_IMG;
 
         int score_offset = game->score_offset;
-
-        // Offset things in the y direction
-        y += (VERTICAL_TEXT_OFFSET);
         game->home_team_name.draw(&game->home_team_name, x, y, 0, 0, renderer);
-        game->home_team_score.draw(&game->home_team_score, x + score_offset, y, 0, 0, renderer);
+        game->home_team_score.draw(&game->home_team_score, x + (SELECTED_IMAGE_SIZE_W - score_offset), y, 0, 0, renderer);
         y += (VERTICAL_TEXT_OFFSET);
         game->away_team_name.draw(&game->away_team_name, x, y, 0, 0, renderer);
-        game->away_team_score.draw(&game->away_team_score, x + score_offset, y, 0, 0, renderer);
+        game->away_team_score.draw(&game->away_team_score, x + (SELECTED_IMAGE_SIZE_W - score_offset), y, 0, 0, renderer);
         y += (VERTICAL_TEXT_OFFSET);
         game->game_state.draw(&game->game_state, x, y, 0, 0, renderer);
     }
@@ -371,7 +378,7 @@ static gameDisplayObj_t *gameDisplayObjCreate(const gameData_t *p_game_data)
         p_game->pos_x =x;
         p_game->pos_y =y;
         p_game->selected = false;
-        p_game->score_offset = (int)(MAX(strlen(p_game_data->home_team_name_str), strlen(p_game_data->home_team_name_str)) * PIX_PER_CHAR);
+        p_game->score_offset = (int)(MAX(strlen(p_game_data->home_team_score_str), strlen(p_game_data->away_team_score_str)) * PIX_PER_CHAR);
 
         p_game->date = textInitObj(p_game_data->date_str, NORMAL_FONT_SIZE, x, y);
 
