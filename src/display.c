@@ -53,28 +53,15 @@
 
 /* ***************************   Definitions   **************************** */
 
+#define DISPLAY_WINDOW_TITLE "DSS Assignment"
+
+// Resource files
 #define DISPLAY_BACKGROUND_FILE "res/1.jpg"
 #define DISPLAY_LOADING_IMAGE_FILE "res/loading.png"
-#define DISPLAY_WINDOW_TITLE "DSS Assignment"
 
 // Screen dimension constants
 #define DISPLAY_SCREEN_WIDTH 1920
 #define DISPLAY_SCREEN_HEIGHT 1080
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-#define RMASK = 0xff000000;
-#define GMASK = 0x00ff0000;
-#define BMASK = 0x0000ff00;
-#define AMASK = 0x000000ff;
-#else
-#define RMASK = 0x000000ff;
-#define GMASK = 0x0000ff00;
-#define BMASK = 0x00ff0000;
-#define AMASK = 0xff000000;
-#endif
-
-#define THUMB_H 270
-#define THUMB_W 480
 
 /* ****************************   Structures   **************************** */
 

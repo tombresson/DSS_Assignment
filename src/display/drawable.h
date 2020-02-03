@@ -6,6 +6,12 @@
 //
 //  Contains datastuctures for drawable elements.
 //
+// The concept around a drawable element is, is a single type that can be
+// passed around and drawn. Each sub element that is a drawable element
+// implements the draw function, so it can be drawn just by calling the draw
+// function contained in the function pointer and passing in the reference to
+// itself.
+//
 // The MIT License (MIT)
 //
 // Copyright (c) 2020, Thomas Bresson
@@ -37,6 +43,8 @@
 
 /* ***************************   Definitions   **************************** */
 
+// Types of drawable elements
+// If adding elements that are drawable, add it here, along with the structure below.
 typedef enum
 {
     E_DRAWABLE_INVALID = 0,
@@ -53,10 +61,12 @@ typedef enum
 
 typedef struct drawableObj drawableObj_t;
 
+// Function prototype for the draw function
 typedef void (drawFcn_t)(drawableObj_t* obj, int x, int y, int w, int h, SDL_Renderer *renderer);
 
 /* ****************************   Structures   **************************** */
 
+// Text drawable element
 typedef struct
 {
     const char *message;
@@ -82,7 +92,7 @@ typedef struct
 } imgObject_t;
 
 
-
+// Drawable element type
 struct drawableObj
 {
     drawableType_t type;
