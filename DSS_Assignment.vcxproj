@@ -217,12 +217,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\Documents\GitHub\DSS_Assignment\src;E:\Documents\GitHub\DSS_Assignment\src\inc;E:\Documents\GitHub\DSS_Assignment\src\inc\curl;E:\Documents\GitHub\DSS_Assignment\src\inc\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src\inc;$(ProjectDir)src\inc\curl;$(ProjectDir)src\inc\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>E:\Documents\GitHub\DSS_Assignment\src\lib\SDL2\SDL2.lib;E:\Documents\GitHub\DSS_Assignment\src\lib\SDL2\SDL2_image.lib;E:\Documents\GitHub\DSS_Assignment\src\lib\SDL2\SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)src\lib\SDL2\SDL2.lib;$(ProjectDir)src\lib\SDL2\SDL2_image.lib;$(ProjectDir)src\lib\SDL2\SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -253,12 +253,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src\inc;$(ProjectDir)src\inc\SDL2;$(ProjectDir)src\inc\curl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(ProjectDir)src\lib\SDL2\SDL2.lib;$(ProjectDir)src\lib\SDL2\SDL2_image.lib;$(ProjectDir)src\lib\SDL2\SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
