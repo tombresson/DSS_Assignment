@@ -43,6 +43,6 @@
 
 /* ***********************   Function Prototypes   ************************ */
 
- int display();
+ int display(void);
 
 #endif /* DISPLAY_H */

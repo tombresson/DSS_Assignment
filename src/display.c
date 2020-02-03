@@ -66,8 +66,8 @@
 /* ****************************   Structures   **************************** */
 
 /* ***********************   Function Prototypes   ************************ */
-static bool init();
-static void close();
+static bool displayInit(void);
+static void displayClose(void);
 static void displayStartDisplay(void);
 static void displayShowGameData(void);
 static void displayHandleKeyPress(const SDL_Keysym key, bool* exit);
@@ -86,10 +86,10 @@ SDL_Surface *g_screen_surface = NULL;
 
 /* *************************   Public  Functions   ************************ */
 
-int display()
+int display(void)
 {
     // Start up SDL and create window
-    if (!init())
+    if (!displayInit())
     {
         printf("Failed to initialize!\n");
     }
@@ -99,14 +99,16 @@ int display()
     }
 
     // Free resources and close SDL
-    close();
+    displayClose();
 
+
+    // TODO: Should return some kind of exit code after leaving
     return 0;
 }
 
 /* *************************   Private Functions   ************************ */
 
-static bool init()
+static bool displayInit(void)
 {
     // Initialization flag
     bool success = true;
@@ -165,7 +167,7 @@ static bool init()
     return success;
 }
 
-static void close()
+static void displayClose(void)
 {
     // Destroy window
     SDL_DestroyRenderer(g_renderer);
