@@ -294,7 +294,8 @@ static void gameDisplayObjListDestroy(const gameDisplayNode_t *p_node)
     {
         gameDisplayObjDestroy(p_current_node->p_data);
         const gameDisplayNode_t *p_next_node = p_current_node->next;
-        free(p_current_node);
+        // Safe cast, since we intend to free the data
+        free((void *)p_current_node);
         p_current_node = p_next_node;
     }
 }
