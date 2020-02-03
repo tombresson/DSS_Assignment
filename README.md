@@ -3,8 +3,9 @@
 ## Building
 
 * Install VisualStudio 2019
-* Clone [vcpkg from GitHub](https://github.com/Microsoft/vcpkg)
-* Install libcurl with vcpkg `vcpkg install curl:x64-windows`
+* Clone [**vcpkg** from GitHub](https://github.com/Microsoft/vcpkg)
+* Follow the setup steps in the [**vcpkg** Quick Start](https://github.com/microsoft/vcpkg/blob/master/README.md#quick-start)
+* Install libcurl with **vcpkg** `vcpkg install curl:x64-windows`
 * Copy all the files in the `redist` to the `x64\Debug` folder
 * Build the project
 * Run/Debug the project
