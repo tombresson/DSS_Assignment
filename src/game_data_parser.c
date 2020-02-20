@@ -153,6 +153,10 @@ gameDataNode_t *gameDataParserGatherData(const char *const p_json_url)
             p_first_node = gameDataDeserializeGames(idx_of_game_data, &token_data, json_data_buff.p_buffer, json_data_buff.content_length);
             // This is the easiest approach without modifying the way the deserialization code works
         }
+
+        // TODO: Remove this todo, only here to indicate that this was forgotton the the submission originally.
+        // TODO: OOPS! Free the token data, since it's no longer needed
+        gameDataFreeTokenData(&token_data);
     }
     curlLibFreeData(&json_data_buff);
 
