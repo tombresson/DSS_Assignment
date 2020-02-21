@@ -79,6 +79,7 @@ static int gameDataFindArray(const jsmnTokenizationData_t *const p_tok_data, con
 static gameDataNode_t *gameDataDeserializeGames(const int game_array_idx, const jsmnTokenizationData_t *const p_token_data,
                                      const char *const p_json_buff, const size_t json_content_length);
 static gameDataNode_t *gameDataDeserializeGame(const gameDataObj_t *p_game_data_obj, gameDataNode_t *p_prev_node);
+static void gameDataFreeTokenData(jsmnTokenizationData_t *const p_token_data);
 
 /* ***********************   File Scope Variables   *********************** */
 
